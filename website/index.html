@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGORA Protocol - Universal Basic Income on Blockchain</title>
+    <meta name="description" content="100 AGORA tokens per day for every verified human. No mining. No buying. Just proof of humanity.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.svg">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0a0b;
+            --bg-secondary: #111113;
+            --bg-tertiary: #1a1a1d;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent: #22c55e;
+            --accent-dim: #16a34a;
+            --accent-glow: rgba(34, 197, 94, 0.15);
+            --border: #27272a;
+            --font-display: 'Syne', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-mono);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Noise texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, var(--bg-primary) 0%, transparent 100%);
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        .logo-text {
+            display: flex;
+            align-items: baseline;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 6rem 2rem;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-weight: 800;
+            line-height: 0.95;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.6s ease-out 0.1s backwards;
+        }
+
+        .hero h1 .accent {
+            color: var(--accent);
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.6s ease-out 0.2s backwards;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeInUp 0.6s ease-out 0.3s backwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            text-decoration: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg-primary);
+            font-weight: 700;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dim);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--text-muted);
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            padding: 4rem 2rem;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* How It Works */
+        .section {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .step {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .step:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+
+        .step-number {
+            position: absolute;
+            top: -12px;
+            left: 24px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+        }
+
+        .step-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .step h3 {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Features */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .feature {
+            background: var(--bg-secondary);
+            padding: 2.5rem;
+        }
+
+        .feature h3 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature h3::before {
+            content: '→';
+            color: var(--accent);
+        }
+
+        .feature p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Claim Section */
+        .claim-section {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .claim-box {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .claim-amount {
+            font-family: var(--font-display);
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .claim-label {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        #wallet-status {
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        #wallet-status.connected {
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+
+        #wallet-status.disconnected {
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        /* Footer */
+        footer {
+            padding: 4rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-copy {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                gap: 2rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Wallet Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .wallet-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0.5rem;
+            width: 100%;
+        }
+
+        .wallet-option:hover {
+            border-color: var(--accent);
+        }
+
+        .wallet-option img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .wallet-option span {
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="#" class="logo">
+            <svg class="logo-svg" viewBox="0 0 200 200">
+                <defs>
+                    <linearGradient id="navLogoGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#22c55e" />
+                        <stop offset="100%" style="stop-color:#16a34a" />
+                    </linearGradient>
+                </defs>
+                <g transform="translate(100, 100)">
+                    <rect x="-40" y="-40" width="6" height="80" fill="url(#navLogoGrad)"/>
+                    <rect x="-20" y="-30" width="6" height="70" fill="url(#navLogoGrad)" opacity="0.8"/>
+                    <rect x="0" y="-25" width="6" height="65" fill="url(#navLogoGrad)" opacity="0.7"/>
+                    <rect x="20" y="-30" width="6" height="70" fill="url(#navLogoGrad)" opacity="0.8"/>
+                    <rect x="40" y="-40" width="6" height="80" fill="url(#navLogoGrad)"/>
+                    <rect x="-43" y="-45" width="92" height="8" fill="url(#navLogoGrad)"/>
+                    <rect x="-50" y="40" width="106" height="5" fill="url(#navLogoGrad)" opacity="0.6"/>
+                    <circle cx="3" cy="0" r="50" fill="none" stroke="url(#navLogoGrad)" stroke-width="1.5" opacity="0.4"/>
+                </g>
+            </svg>
+            <span>AGORA<span style="color: var(--text-primary);">.</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="#how-it-works">How It Works</a>
+            <a href="#features">Features</a>
+            <a href="inflation.html">Inflation</a>
+            <a href="treasury.html">Treasury</a>
+            <a href="https://github.com/agora-protocol" target="_blank">GitHub</a>
+            <a href="#claim" class="btn btn-primary">Claim AGORA</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-badge">
+            <span>Launching Soon on Solana</span>
+        </div>
+        <h1>
+            <span class="accent">100 AGORA</span><br>
+            Every Day.<br>
+            For Everyone.
+        </h1>
+        <p class="hero-subtitle">
+            Universal Basic Income on the blockchain. No mining. No buying. 
+            Just proof that you're a unique human being.
+        </p>
+        <div class="hero-cta">
+            <a href="#claim" class="btn btn-primary">
+                Connect Wallet
+            </a>
+            <a href="#how-it-works" class="btn btn-secondary">
+                Learn More
+            </a>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-bar">
+        <div class="stat">
+            <div class="stat-value">100</div>
+            <div class="stat-label">AGORA / Day</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">36,500</div>
+            <div class="stat-label">Initial Claim</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">0%</div>
+            <div class="stat-label">Founder Pre-mine</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">∞</div>
+            <div class="stat-label">For Everyone</div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section" id="how-it-works">
+        <div class="section-header">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">
+                Four simple steps to claim your universal basic income.
+            </p>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <span class="step-number">01</span>
+                <div class="step-icon">👛</div>
+                <h3>Connect Wallet</h3>
+                <p>Connect your Solana wallet (Phantom, Solflare, or any compatible wallet).</p>
+            </div>
+            <div class="step">
+                <span class="step-number">02</span>
+                <div class="step-icon">🪪</div>
+                <h3>Verify Identity</h3>
+                <p>Complete a quick identity check via Civic Pass. One person = one account.</p>
+            </div>
+            <div class="step">
+                <span class="step-number">03</span>
+                <div class="step-icon">🎁</div>
+                <h3>Get Initial Claim</h3>
+                <p>Receive up to 36,500 AGORA instantly as your retroactive UBI bonus.</p>
+            </div>
+            <div class="step">
+                <span class="step-number">04</span>
+                <div class="step-icon">🔄</div>
+                <h3>Claim Daily</h3>
+                <p>Return anytime to claim your accumulated AGORA (up to 30 days).</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section" id="features">
+        <div class="section-header">
+            <h2 class="section-title">Built Different</h2>
+            <p class="section-subtitle">
+                AGORA is not another speculative token. It's money for economic freedom.
+            </p>
+        </div>
+        <div class="features">
+            <div class="feature">
+                <h3>100% Fair Launch</h3>
+                <p>Zero pre-mine. Zero founder allocation. Zero investor tokens. The community owns 100% from day one.</p>
+            </div>
+            <div class="feature">
+                <h3>Direct Democracy</h3>
+                <p>No guardians. No representatives. Every decision voted on by the community. Pure on-chain democracy.</p>
+            </div>
+            <div class="feature">
+                <h3>Sybil Resistant</h3>
+                <p>Civic Pass ensures one person = one account. No bots. No fake accounts. Real humans only.</p>
+            </div>
+            <div class="feature">
+                <h3>Child Protection</h3>
+                <p>Claims for users under 18 are locked until adulthood. Protecting the next generation.</p>
+            </div>
+            <div class="feature">
+                <h3>Self-Balancing</h3>
+                <p>Transfer fees (0.1%: 50% burn, 50% treasury) fund operations sustainably without external dependencies.</p>
+            </div>
+            <div class="feature">
+                <h3>Usage Over Speculation</h3>
+                <p>Not tradeable on DEXes at launch. Focus on adoption, not speculation. Real utility first.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Claim Section -->
+    <section class="claim-section" id="claim">
+        <div class="claim-box">
+            <div class="claim-amount" id="claimable-amount">0</div>
+            <p class="claim-label">AGORA Available to Claim</p>
+            
+            <div id="wallet-status" class="disconnected">
+                Wallet not connected
+            </div>
+            
+            <button id="connect-btn" class="btn btn-primary" style="width: 100%;">
+                Connect Wallet
+            </button>
+            
+            <button id="claim-btn" class="btn btn-primary" style="width: 100%; display: none; margin-top: 1rem;">
+                Claim AGORA
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-links">
+            <a href="treasury.html">Treasury</a>
+            <a href="https://github.com/agora-protocol" target="_blank">GitHub</a>
+            <a href="https://discord.gg/agora-protocol" target="_blank">Discord</a>
+            <a href="https://twitter.com/agora_protocol" target="_blank">Twitter</a>
+            <a href="docs/AGORA_Manifesto_v1_0_FINAL.md" target="_blank">Manifesto</a>
+        </div>
+        <p class="footer-copy">
+            AGORA Protocol © 2025. For economic freedom. For everyone. Forever.
+        </p>
+    </footer>
+
+    <!-- Wallet Modal -->
+    <div class="modal" id="wallet-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Connect Wallet</span>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <button class="wallet-option" onclick="connectPhantom()">
+                <img src="https://phantom.app/img/phantom-logo.svg" alt="Phantom" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect fill=%22%23ab9ff2%22 width=%2232%22 height=%2232%22 rx=%228%22/></svg>'">
+                <span>Phantom</span>
+            </button>
+            <button class="wallet-option" onclick="connectSolflare()">
+                <img src="https://solflare.com/favicon.ico" alt="Solflare" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect fill=%22%23fc822b%22 width=%2232%22 height=%2232%22 rx=%228%22/></svg>'">
+                <span>Solflare</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // AGORA Protocol Frontend JavaScript
+        // This handles wallet connection and basic UI interactions
+        
+        let walletAddress = null;
+        let isVerified = false;
+        
+        // DOM Elements
+        const connectBtn = document.getElementById('connect-btn');
+        const claimBtn = document.getElementById('claim-btn');
+        const walletStatus = document.getElementById('wallet-status');
+        const claimableAmount = document.getElementById('claimable-amount');
+        const walletModal = document.getElementById('wallet-modal');
+        
+        // Event Listeners
+        connectBtn.addEventListener('click', () => {
+            walletModal.classList.add('active');
+        });
+        
+        function closeModal() {
+            walletModal.classList.remove('active');
+        }
+        
+        // Close modal when clicking outside
+        walletModal.addEventListener('click', (e) => {
+            if (e.target === walletModal) {
+                closeModal();
+            }
+        });
+        
+        // Phantom Wallet Connection
+        async function connectPhantom() {
+            try {
+                const { solana } = window;
+                
+                if (!solana?.isPhantom) {
+                    window.open('https://phantom.app/', '_blank');
+                    return;
+                }
+                
+                const response = await solana.connect();
+                walletAddress = response.publicKey.toString();
+                onWalletConnected();
+                closeModal();
+                
+            } catch (error) {
+                console.error('Phantom connection error:', error);
+                alert('Failed to connect Phantom wallet');
+            }
+        }
+        
+        // Solflare Wallet Connection
+        async function connectSolflare() {
+            try {
+                const { solflare } = window;
+                
+                if (!solflare?.isSolflare) {
+                    window.open('https://solflare.com/', '_blank');
+                    return;
+                }
+                
+                await solflare.connect();
+                walletAddress = solflare.publicKey.toString();
+                onWalletConnected();
+                closeModal();
+                
+            } catch (error) {
+                console.error('Solflare connection error:', error);
+                alert('Failed to connect Solflare wallet');
+            }
+        }
+        
+        // Handle successful wallet connection
+        function onWalletConnected() {
+            const shortAddress = `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`;
+            
+            walletStatus.className = 'connected';
+            walletStatus.innerHTML = `Connected: ${shortAddress}`;
+            
+            connectBtn.textContent = 'Verify with Civic';
+            connectBtn.onclick = startCivicVerification;
+            
+            // Check if already verified (TODO: implement actual check)
+            checkVerificationStatus();
+        }
+        
+        // Check Civic Pass verification status
+        async function checkVerificationStatus() {
+            // TODO: Implement actual Civic Pass check
+            // For now, simulate checking
+            console.log('Checking Civic Pass status for:', walletAddress);
+            
+            // Placeholder - would check on-chain for Civic Pass
+            // If verified, show claim button
+        }
+        
+        // Start Civic verification process
+        function startCivicVerification() {
+            // TODO: Implement Civic Pass verification
+            // This will open Civic's verification flow
+            
+            alert('Civic verification coming soon!\n\nThis will verify you as a unique human.');
+            
+            // After verification, would call:
+            // onVerificationComplete();
+        }
+        
+        // Handle successful verification
+        function onVerificationComplete() {
+            isVerified = true;
+            
+            connectBtn.style.display = 'none';
+            claimBtn.style.display = 'block';
+            
+            // Calculate claimable amount
+            // New users get 36,500 AGORA initial + any accumulated daily
+            updateClaimableAmount(36500);
+        }
+        
+        // Update claimable amount display
+        function updateClaimableAmount(amount) {
+            // Animate the number
+            let current = 0;
+            const increment = amount / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= amount) {
+                    current = amount;
+                    clearInterval(timer);
+                }
+                claimableAmount.textContent = Math.floor(current).toLocaleString();
+            }, 20);
+        }
+        
+        // Claim tokens
+        claimBtn.addEventListener('click', async () => {
+            if (!walletAddress || !isVerified) return;
+            
+            claimBtn.disabled = true;
+            claimBtn.textContent = 'Claiming...';
+            
+            try {
+                // TODO: Implement actual claim transaction
+                // This will call the Solana smart contract
+                
+                alert('Claim functionality coming soon!\n\nThis will mint AGORA tokens to your wallet.');
+                
+            } catch (error) {
+                console.error('Claim error:', error);
+                alert('Failed to claim tokens');
+            } finally {
+                claimBtn.disabled = false;
+                claimBtn.textContent = 'Claim AGORA';
+            }
+        });
+        
+        // Check for existing wallet connection on page load
+        window.addEventListener('load', async () => {
+            // Check Phantom
+            if (window.solana?.isPhantom && window.solana.isConnected) {
+                try {
+                    const response = await window.solana.connect({ onlyIfTrusted: true });
+                    walletAddress = response.publicKey.toString();
+                    onWalletConnected();
+                } catch (e) {
+                    // User hasn't connected before
+                }
+            }
+            
+            // Check Solflare
+            if (window.solflare?.isSolflare && window.solflare.isConnected) {
+                walletAddress = window.solflare.publicKey.toString();
+                onWalletConnected();
+            }
+        });
+    </script>
+</body>
+</html>

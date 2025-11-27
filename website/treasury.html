@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treasury Dashboard - AGORA Protocol</title>
+    <meta name="description" content="Community-governed treasury. Every decision is transparent, on-chain, and voted on directly by the AGORA community.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.svg">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0a0b;
+            --bg-secondary: #111113;
+            --bg-tertiary: #1a1a1d;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent: #22c55e;
+            --accent-dim: #16a34a;
+            --accent-glow: rgba(34, 197, 94, 0.15);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #27272a;
+            --font-display: 'Syne', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-mono);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Noise texture */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, var(--bg-primary) 0%, transparent 100%);
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 8rem 2rem 4rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .header h1 {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dim);
+            transform: translateY(-2px);
+        }
+
+        /* Proposals */
+        .proposals {
+            margin-bottom: 4rem;
+        }
+
+        .proposal-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .proposal-card:hover {
+            border-color: var(--accent);
+        }
+
+        .proposal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .proposal-id {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .proposal-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--accent);
+        }
+
+        .status-passed {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--accent);
+        }
+
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .proposal-title {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .proposal-meta {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .proposal-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .proposal-amount {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .amount-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .amount-value {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-top: 0.25rem;
+        }
+
+        /* Voting */
+        .voting-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .vote-progress {
+            margin-bottom: 1rem;
+        }
+
+        .vote-bars {
+            display: flex;
+            gap: 0.5rem;
+            height: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.25rem;
+            overflow: hidden;
+        }
+
+        .vote-bar-yes {
+            background: var(--accent);
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .vote-bar-no {
+            background: var(--danger);
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .vote-bar-abstain {
+            background: var(--text-muted);
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .vote-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+
+        .vote-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .vote-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+        }
+
+        .dot-yes { background: var(--accent); }
+        .dot-no { background: var(--danger); }
+        .dot-abstain { background: var(--text-muted); }
+
+        .vote-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn-vote {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-vote-yes {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-vote-yes:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .btn-vote-no {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .btn-vote-no:hover {
+            background: var(--danger);
+            color: var(--text-primary);
+        }
+
+        .btn-vote-abstain {
+            background: rgba(113, 113, 122, 0.1);
+            color: var(--text-secondary);
+        }
+
+        .btn-vote-abstain:hover {
+            background: var(--text-muted);
+            color: var(--text-primary);
+        }
+
+        /* History */
+        .history {
+            margin-bottom: 4rem;
+        }
+
+        .history-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-info h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .history-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .history-amount {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .amount-positive {
+            color: var(--accent);
+        }
+
+        .amount-negative {
+            color: var(--danger);
+        }
+
+        /* Info Box */
+        .info-box {
+            background: rgba(34, 197, 94, 0.05);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .info-box h3 {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-box li {
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: start;
+            gap: 0.5rem;
+        }
+
+        .info-box li::before {
+            content: '→';
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* Tabs */
+        .treasury-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-button.active {
+            color: var(--accent);
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Sponsor specific styles */
+        .sponsors-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .sponsor-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .sponsor-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .sponsor-badge {
+            font-size: 1.5rem;
+        }
+
+        .sponsor-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .sponsor-address {
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .sponsor-tier {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .sponsor-amount {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: start;
+                gap: 1rem;
+            }
+
+            .proposal-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .proposal-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .vote-buttons {
+                flex-direction: column;
+            }
+
+            .history-item {
+                flex-direction: column;
+                align-items: start;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="logo">
+            <svg class="logo-svg" viewBox="0 0 200 200">
+                <defs>
+                    <linearGradient id="treasuryLogoGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#22c55e" />
+                        <stop offset="100%" style="stop-color:#16a34a" />
+                    </linearGradient>
+                </defs>
+                <g transform="translate(100, 100)">
+                    <rect x="-40" y="-40" width="6" height="80" fill="url(#treasuryLogoGrad)"/>
+                    <rect x="-20" y="-30" width="6" height="70" fill="url(#treasuryLogoGrad)" opacity="0.8"/>
+                    <rect x="0" y="-25" width="6" height="65" fill="url(#treasuryLogoGrad)" opacity="0.7"/>
+                    <rect x="20" y="-30" width="6" height="70" fill="url(#treasuryLogoGrad)" opacity="0.8"/>
+                    <rect x="40" y="-40" width="6" height="80" fill="url(#treasuryLogoGrad)"/>
+                    <rect x="-43" y="-45" width="92" height="8" fill="url(#treasuryLogoGrad)"/>
+                    <rect x="-50" y="40" width="106" height="5" fill="url(#treasuryLogoGrad)" opacity="0.6"/>
+                    <circle cx="3" cy="0" r="50" fill="none" stroke="url(#treasuryLogoGrad)" stroke-width="1.5" opacity="0.4"/>
+                </g>
+            </svg>
+            <span>AGORA<span style="color: var(--text-primary);">.</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="inflation.html">Inflation</a>
+            <a href="treasury.html" class="active">Treasury</a>
+            <a href="https://github.com/agora-protocol" target="_blank">GitHub</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Treasury Dashboard</h1>
+            <p>Community-governed treasury. Every decision is transparent, on-chain, and voted on directly by the AGORA community. No guardians. No representatives.</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="treasury-tabs">
+            <button class="tab-button active" onclick="showTab('gaspool')">SOL Gas Pool</button>
+            <button class="tab-button" onclick="showTab('dao')">DAO Treasury</button>
+        </div>
+
+        <!-- SOL Gas Pool Tab -->
+        <div id="gaspool-tab" class="tab-content active">
+            <!-- Gas Pool Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Pool Balance</div>
+                    <div class="stat-value">7,500 SOL</div>
+                    <div class="stat-subtitle">Available for gas fees</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Users Covered</div>
+                    <div class="stat-value">75,000</div>
+                    <div class="stat-subtitle">Monthly claims for 1 year</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Monthly Burn Rate</div>
+                    <div class="stat-value">150 SOL</div>
+                    <div class="stat-subtitle">Current usage</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Months Remaining</div>
+                    <div class="stat-value">50</div>
+                    <div class="stat-subtitle">At current rate</div>
+                </div>
+            </div>
+            <!-- Coverage Indicator -->
+            <div class="info-box" style="text-align: center; padding: 2rem;">
+                <div style="font-size: 3rem; color: var(--accent); font-weight: 700;">50 months</div>
+                <div style="color: var(--text-secondary); margin-top: 0.5rem;">Gas fees covered at current usage</div>
+                <div style="margin-top: 1.5rem;">
+                    <div style="background: var(--bg-tertiary); border-radius: 8px; overflow: hidden; height: 30px;">
+                        <div style="background: var(--accent); height: 100%; width: 75%; transition: width 0.3s;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                        <span>Used: 2,500 SOL</span>
+                        <span>Available: 7,500 SOL</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sponsor Tiers -->
+            <section style="margin-top: 3rem;">
+                <h2>Sponsor Tiers</h2>
+                <div class="info-box">
+                    <h3>🎯 Become a Sponsor - Help Onboard Users</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        <div style="text-align: center; padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+                            <div style="font-size: 1.5rem;">🥉</div>
+                            <div style="font-weight: 600; color: var(--text-primary);">Bronze (1 SOL)</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">25% fee discount</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Covers 10 users</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+                            <div style="font-size: 1.5rem;">🥈</div>
+                            <div style="font-weight: 600; color: var(--text-primary);">Silver (10 SOL)</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">50% fee discount</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Covers 100 users</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+                            <div style="font-size: 1.5rem;">🥇</div>
+                            <div style="font-weight: 600; color: var(--text-primary);">Gold (100 SOL)</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">75% fee discount</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Covers 1,000 users</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+                            <div style="font-size: 1.5rem;">🏆</div>
+                            <div style="font-weight: 600; color: var(--text-primary);">Platinum (1000 SOL)</div>
+                            <div style="font-size: 0.85rem; color: var(--accent);">100% fee discount</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Covers 10,000 users</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; border: 1px solid var(--accent); border-radius: 8px; background: rgba(34, 197, 94, 0.05);">
+                            <div style="font-size: 1.5rem;">💎</div>
+                            <div style="font-weight: 600; color: var(--accent);">Diamond (10,000 SOL)</div>
+                            <div style="font-size: 0.85rem; color: var(--accent);">100% fee discount + perks</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Covers 100,000 users</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Top Sponsors -->
+            <section style="margin-top: 3rem;">
+                <h2>Top Sponsors</h2>
+                <div class="sponsors-grid">
+                    <div class="sponsor-card">
+                        <div class="sponsor-info">
+                            <div class="sponsor-badge">💎</div>
+                            <div class="sponsor-details">
+                                <div class="sponsor-address">7xKj9...9sP2</div>
+                                <div class="sponsor-tier">Diamond Sponsor</div>
+                            </div>
+                        </div>
+                        <div class="sponsor-amount">10,000 SOL</div>
+                    </div>
+                    <div class="sponsor-card">
+                        <div class="sponsor-info">
+                            <div class="sponsor-badge">🏆</div>
+                            <div class="sponsor-details">
+                                <div class="sponsor-address">8mNp...3aKL</div>
+                                <div class="sponsor-tier">Platinum Sponsor</div>
+                            </div>
+                        </div>
+                        <div class="sponsor-amount">1,000 SOL</div>
+                    </div>
+                    <div class="sponsor-card">
+                        <div class="sponsor-info">
+                            <div class="sponsor-badge">🥇</div>
+                            <div class="sponsor-details">
+                                <div class="sponsor-address">4Lyn...8bTx</div>
+                                <div class="sponsor-tier">Gold Sponsor</div>
+                            </div>
+                        </div>
+                        <div class="sponsor-amount">100 SOL</div>
+                    </div>
+                    <div class="sponsor-card">
+                        <div class="sponsor-info">
+                            <div class="sponsor-badge">🥇</div>
+                            <div class="sponsor-details">
+                                <div class="sponsor-address">9Pqw...2nMa</div>
+                                <div class="sponsor-tier">Gold Sponsor</div>
+                            </div>
+                        </div>
+                        <div class="sponsor-amount">100 SOL</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="btn-primary" onclick="alert('Connect wallet to become a sponsor')">
+                        Become a Sponsor
+                    </button>
+                </div>
+            </section>
+
+            <!-- How It Works -->
+            <section style="margin-top: 3rem;">
+                <h2>How Gas Sponsorship Works</h2>
+                <div class="info-box">
+                    <ul>
+                        <li>Sponsors deposit SOL into a smart contract-controlled pool</li>
+                        <li>New users automatically receive gas subsidies from the pool</li>
+                        <li>Non-contributors can claim monthly, contributors weekly, sponsors daily</li>
+                        <li>Sponsors receive fee discounts based on contribution level</li>
+                        <li>100% transparent and on-chain - no human gatekeepers</li>
+                        <li>Pool is separate from DAO treasury - dedicated only to gas fees</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- User Tiers & Limitations -->
+            <section style="margin-top: 3rem;">
+                <h2>User Tiers & Transaction Limits</h2>
+                <div class="info-box">
+                    <h3>⚠️ Important: Every transaction on Solana costs SOL gas fees (~0.00025 SOL)</h3>
+                    <div style="margin-top: 1.5rem;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--border);">
+                                    <th style="text-align: left; padding: 0.75rem; color: var(--text-primary);">User Type</th>
+                                    <th style="text-align: left; padding: 0.75rem; color: var(--text-primary);">Claim Frequency</th>
+                                    <th style="text-align: left; padding: 0.75rem; color: var(--text-primary);">Daily TX Limit</th>
+                                    <th style="text-align: left; padding: 0.75rem; color: var(--text-primary);">Personal Allocation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="border-bottom: 1px solid var(--border);">
+                                    <td style="padding: 0.75rem; color: var(--text-secondary);">Non-contributor</td>
+                                    <td style="padding: 0.75rem; color: var(--text-muted);">Monthly (30 days)</td>
+                                    <td style="padding: 0.75rem; color: var(--text-muted);">5 TX/day</td>
+                                    <td style="padding: 0.75rem; color: var(--text-muted);">None</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid var(--border);">
+                                    <td style="padding: 0.75rem; color: var(--text-secondary);">🥉 Bronze (1 SOL)</td>
+                                    <td style="padding: 0.75rem; color: var(--text-primary);">Daily</td>
+                                    <td style="padding: 0.75rem; color: var(--text-primary);">~26 TX/day*</td>
+                                    <td style="padding: 0.75rem; color: var(--accent);">0.2 SOL (800 TX)</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid var(--border);">
+                                    <td style="padding: 0.75rem; color: var(--text-secondary);">🥈 Silver (10 SOL)</td>
+                                    <td style="padding: 0.75rem; color: var(--text-primary);">Daily</td>
+                                    <td style="padding: 0.75rem; color: var(--text-primary);">~200 TX/day*</td>
+                                    <td style="padding: 0.75rem; color: var(--accent);">1.5 SOL (6,000 TX)</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid var(--border);">
+                                    <td style="padding: 0.75rem; color: var(--text-secondary);">🥇 Gold (100 SOL)</td>
+                                    <td style="padding: 0.75rem; color: var(--text-primary);">Daily</td>
+                                    <td style="padding: 0.75rem; color: var(--text-primary);">~1,300 TX/day*</td>
+                                    <td style="padding: 0.75rem; color: var(--accent);">10 SOL (40,000 TX)</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid var(--border);">
+                                    <td style="padding: 0.75rem; color: var(--accent);">🏆 Platinum (1,000 SOL)</td>
+                                    <td style="padding: 0.75rem; color: var(--accent);">Daily</td>
+                                    <td style="padding: 0.75rem; color: var(--accent);">~6,500 TX/day*</td>
+                                    <td style="padding: 0.75rem; color: var(--accent);">50 SOL (200,000 TX)</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.75rem; color: var(--accent);">💎 Diamond (10,000 SOL)</td>
+                                    <td style="padding: 0.75rem; color: var(--accent);">Daily</td>
+                                    <td style="padding: 0.75rem; color: var(--accent);">~65,000 TX/day*</td>
+                                    <td style="padding: 0.75rem; color: var(--accent);">300 SOL (1.2M TX)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+                            * Daily TX limits are based on spreading personal allocation over 30 days. When personal allocation is depleted, user drops to free tier (5 TX/day).
+                        </p>
+                    </div>
+                    <p style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 8px; border-left: 3px solid var(--accent);">
+                        <strong>💡 Why limitations?</strong> Each transaction costs ~0.00025 SOL. Without limits, one user could drain the pool with thousands of micro-transactions. This ensures fair access for everyone while incentivizing contribution to the ecosystem.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Personal Allocation Rules -->
+            <section style="margin-top: 3rem;">
+                <h2>Personal Allocation System</h2>
+                <div class="info-box">
+                    <h3>🔒 Sponsor Protection & Fair Use Policy</h3>
+                    <p style="margin-bottom: 1.5rem;">
+                        Sponsors receive a portion of their contribution for personal use. The rest goes to the community pool. This prevents any single user from draining the pool, even sponsors.
+                    </p>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--border);">
+                                <th style="text-align: left; padding: 0.75rem; color: var(--text-primary);">Tier</th>
+                                <th style="text-align: left; padding: 0.75rem; color: var(--text-primary);">Contribution</th>
+                                <th style="text-align: left; padding: 0.75rem; color: var(--text-primary);">Personal Use</th>
+                                <th style="text-align: left; padding: 0.75rem; color: var(--text-primary);">To Pool</th>
+                                <th style="text-align: left; padding: 0.75rem; color: var(--text-primary);">TX Budget</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 0.75rem;">🥉 Bronze</td>
+                                <td style="padding: 0.75rem;">1 SOL</td>
+                                <td style="padding: 0.75rem; color: var(--accent);">20% (0.2 SOL)</td>
+                                <td style="padding: 0.75rem;">80% (0.8 SOL)</td>
+                                <td style="padding: 0.75rem; color: var(--text-muted);">~800 TX</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 0.75rem;">🥈 Silver</td>
+                                <td style="padding: 0.75rem;">10 SOL</td>
+                                <td style="padding: 0.75rem; color: var(--accent);">15% (1.5 SOL)</td>
+                                <td style="padding: 0.75rem;">85% (8.5 SOL)</td>
+                                <td style="padding: 0.75rem; color: var(--text-muted);">~6,000 TX</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 0.75rem;">🥇 Gold</td>
+                                <td style="padding: 0.75rem;">100 SOL</td>
+                                <td style="padding: 0.75rem; color: var(--accent);">10% (10 SOL)</td>
+                                <td style="padding: 0.75rem;">90% (90 SOL)</td>
+                                <td style="padding: 0.75rem; color: var(--text-muted);">~40,000 TX</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 0.75rem;">🏆 Platinum</td>
+                                <td style="padding: 0.75rem;">1,000 SOL</td>
+                                <td style="padding: 0.75rem; color: var(--accent);">5% (50 SOL)</td>
+                                <td style="padding: 0.75rem;">95% (950 SOL)</td>
+                                <td style="padding: 0.75rem; color: var(--text-muted);">~200,000 TX</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.75rem;">💎 Diamond</td>
+                                <td style="padding: 0.75rem;">10,000 SOL</td>
+                                <td style="padding: 0.75rem; color: var(--accent);">3% (300 SOL)</td>
+                                <td style="padding: 0.75rem;">97% (9,700 SOL)</td>
+                                <td style="padding: 0.75rem; color: var(--text-muted);">~1,200,000 TX</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border-left: 3px solid #ef4444;">
+                        <strong>⚠️ When personal allocation is depleted:</strong>
+                        <ul style="margin-top: 0.5rem; margin-bottom: 0;">
+                            <li>User drops to free tier (5 TX/day limit)</li>
+                            <li>60 second cooldown between transactions</li>
+                            <li>Subject to same restrictions as non-contributors</li>
+                            <li>Must contribute again to restore priority access</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Security Measures -->
+            <section style="margin-top: 3rem;">
+                <h2>Security & Anti-Abuse Measures</h2>
+                <div class="info-box">
+                    <h3>🚨 Zero Tolerance Policy</h3>
+                    <div style="margin-top: 1rem;">
+                        <p style="color: #ef4444; font-weight: 600; margin-bottom: 1rem;">
+                            ANY attempt to drain or abuse the pool results in immediate action:
+                        </p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="padding: 0.5rem; background: var(--bg-tertiary); border-radius: 4px; margin-bottom: 0.5rem;">
+                                <strong>1st Violation:</strong> 30-day suspension (ALL services)
+                            </li>
+                            <li style="padding: 0.5rem; background: var(--bg-tertiary); border-radius: 4px;">
+                                <strong>2nd Violation:</strong> PERMANENT blacklist (no appeals)
+                            </li>
+                        </ul>
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <h4>Detected Attack Patterns:</h4>
+                        <ul>
+                            <li>Ping-pong transactions (A→B→A in <5 minutes)</li>
+                            <li>Circular trading (A→B→C→D→A patterns)</li>
+                            <li>Rapid fire (>10 TX in 1 minute)</li>
+                            <li>Dust attacks (micro-transactions for draining)</li>
+                            <li>Wash trading (same value circulating)</li>
+                            <li>Time-pattern attacks (TX every exact 60 seconds)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- DAO Treasury Tab -->
+        <div id="dao-tab" class="tab-content">
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Treasury Balance</div>
+                    <div class="stat-value">120.0 SOL</div>
+                    <div class="stat-subtitle">≈ $14,400 USD</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Active Proposals</div>
+                    <div class="stat-value">2</div>
+                    <div class="stat-subtitle">Voting in progress</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Spent</div>
+                    <div class="stat-value">0.0 SOL</div>
+                    <div class="stat-subtitle">All-time expenditures</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Voters</div>
+                    <div class="stat-value">60</div>
+                    <div class="stat-subtitle">Funding contributors</div>
+                </div>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <h3>🗳️ Pure Direct Democracy</h3>
+                <ul>
+                    <li>Every funding contributor has 1 vote (not weighted by amount)</li>
+                    <li>All treasury expenditures require community approval</li>
+                    <li>Voting tiers: 24h for <1 SOL, 3 days for 1-10 SOL, 7 days for >10 SOL</li>
+                    <li>Proposals pass with >50% yes votes + minimum quorum</li>
+                    <li>Execution is automatic via smart contract (no human intervention)</li>
+                    <li>After Year 1, all verified AGORA holders can vote (1 person = 1 vote)</li>
+                </ul>
+            </div>
+
+            <!-- Active Proposals -->
+            <section class="proposals">
+                <div class="section-header">
+                    <h2>Active Proposals</h2>
+                    <button class="btn-primary" onclick="alert('Connect wallet to create proposal')">Create Proposal</button>
+                </div>
+
+                <!-- Proposal 1 -->
+                <div class="proposal-card">
+                    <div class="proposal-header">
+                        <div>
+                            <div class="proposal-id">Proposal #001</div>
+                            <h3 class="proposal-title">Fund RPC Infrastructure (Q1 2025)</h3>
+                        </div>
+                        <div class="proposal-status status-active">Voting Active</div>
+                    </div>
+                    <div class="proposal-meta">
+                        <span>Proposer: @alice</span>
+                        <span>Voting ends: 3 days</span>
+                        <span>Tier 2: 30% quorum required</span>
+                    </div>
+                    <p class="proposal-description">
+                        Fund Helius RPC service for 3 months to ensure reliable blockchain access for all users. This covers mainnet RPC endpoints, rate limits of 100 req/s, and priority routing. Critical infrastructure for protocol operations.
+                    </p>
+                    <div class="proposal-amount">
+                        <div class="amount-label">Requested Amount</div>
+                        <div class="amount-value">5.0 SOL</div>
+                    </div>
+                    <div class="voting-section">
+                        <div class="vote-progress">
+                            <div class="vote-bars">
+                                <div class="vote-bar-yes" style="width: 68%"></div>
+                                <div class="vote-bar-no" style="width: 22%"></div>
+                                <div class="vote-bar-abstain" style="width: 10%"></div>
+                            </div>
+                            <div class="vote-stats">
+                                <div class="vote-stat">
+                                    <span class="vote-dot dot-yes"></span>
+                                    <span>Yes: 41 votes (68%)</span>
+                                </div>
+                                <div class="vote-stat">
+                                    <span class="vote-dot dot-no"></span>
+                                    <span>No: 13 votes (22%)</span>
+                                </div>
+                                <div class="vote-stat">
+                                    <span class="vote-dot dot-abstain"></span>
+                                    <span>Abstain: 6 votes (10%)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="vote-buttons">
+                            <button class="btn-vote btn-vote-yes" onclick="alert('Vote YES recorded (demo)')">Vote Yes</button>
+                            <button class="btn-vote btn-vote-no" onclick="alert('Vote NO recorded (demo)')">Vote No</button>
+                            <button class="btn-vote btn-vote-abstain" onclick="alert('Vote ABSTAIN recorded (demo)')">Abstain</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proposal 2 -->
+                <div class="proposal-card">
+                    <div class="proposal-header">
+                        <div>
+                            <div class="proposal-id">Proposal #002</div>
+                            <h3 class="proposal-title">Security Audit Funding</h3>
+                        </div>
+                        <div class="proposal-status status-active">Voting Active</div>
+                    </div>
+                    <div class="proposal-meta">
+                        <span>Proposer: @bob</span>
+                        <span>Voting ends: 5 days</span>
+                        <span>Tier 3: 40% quorum required</span>
+                    </div>
+                    <p class="proposal-description">
+                        Commission a comprehensive security audit from OtterSec before mainnet launch. Includes full smart contract review, test coverage analysis, and detailed audit report. Essential for user safety and protocol credibility.
+                    </p>
+                    <div class="proposal-amount">
+                        <div class="amount-label">Requested Amount</div>
+                        <div class="amount-value">15.0 SOL</div>
+                    </div>
+                    <div class="voting-section">
+                        <div class="vote-progress">
+                            <div class="vote-bars">
+                                <div class="vote-bar-yes" style="width: 82%"></div>
+                                <div class="vote-bar-no" style="width: 8%"></div>
+                                <div class="vote-bar-abstain" style="width: 10%"></div>
+                            </div>
+                            <div class="vote-stats">
+                                <div class="vote-stat">
+                                    <span class="vote-dot dot-yes"></span>
+                                    <span>Yes: 49 votes (82%)</span>
+                                </div>
+                                <div class="vote-stat">
+                                    <span class="vote-dot dot-no"></span>
+                                    <span>No: 5 votes (8%)</span>
+                                </div>
+                                <div class="vote-stat">
+                                    <span class="vote-dot dot-abstain"></span>
+                                    <span>Abstain: 6 votes (10%)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="vote-buttons">
+                            <button class="btn-vote btn-vote-yes" onclick="alert('Vote YES recorded (demo)')">Vote Yes</button>
+                            <button class="btn-vote btn-vote-no" onclick="alert('Vote NO recorded (demo)')">Vote No</button>
+                            <button class="btn-vote btn-vote-abstain" onclick="alert('Vote ABSTAIN recorded (demo)')">Abstain</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transaction History -->
+            <section class="history">
+                <div class="section-header">
+                    <h2>Transaction History</h2>
+                </div>
+                <div class="history-item">
+                    <div class="history-info">
+                        <h3>Initial Treasury Funding</h3>
+                        <div class="history-meta">60 contributors • Nov 25, 2025</div>
+                    </div>
+                    <div class="history-amount amount-positive">+120.0 SOL</div>
+                </div>
+                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    No expenditures yet. All proposals pending.
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>AGORA Protocol • Governed by the community, for the community • All decisions on-chain</p>
+        <p style="margin-top: 0.5rem;">For economic freedom. For everyone. Forever.</p>
+    </footer>
+
+    <script>
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab
+            if (tabName === 'gaspool') {
+                document.getElementById('gaspool-tab').classList.add('active');
+                buttons[0].classList.add('active');
+            } else if (tabName === 'dao') {
+                document.getElementById('dao-tab').classList.add('active');
+                buttons[1].classList.add('active');
+            }
+        }
+        
+        // Placeholder for future wallet integration
+        console.log('AGORA Treasury Dashboard');
+        console.log('Direct democracy in action 🗳️');
+    </script>
+</body>
+</html>

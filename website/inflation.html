@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGORA Protocol - Inflation Model</title>
+    <meta name="description" content="Understanding AGORA's sustainable inflation model that funds universal basic income for everyone.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.svg">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0a0b;
+            --bg-secondary: #111113;
+            --bg-tertiary: #1a1a1d;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent: #22c55e;
+            --accent-dim: #16a34a;
+            --accent-glow: rgba(34, 197, 94, 0.15);
+            --border: #27272a;
+            --font-display: 'Syne', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+            --red: #ef4444;
+            --red-dim: #dc2626;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-mono);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Noise texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, var(--bg-primary) 0%, transparent 100%);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 8rem 2rem 4rem;
+        }
+
+        /* Header Section */
+        .header-section {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Key Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dim) 100%);
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Chart Section */
+        .chart-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .chart-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        #inflationChart {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .chart-note {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .model-explanation {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .model-explanation h3 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .formula-box {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            margin: 1rem 0;
+            color: var(--accent);
+        }
+
+        /* Calculator Section */
+        .calculator-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 1rem;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .quick-amounts {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .quick-btn {
+            padding: 0.4rem 0.8rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Results Display */
+        .results-card {
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .results-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+            padding-top: 1rem;
+            margin-top: 0.5rem;
+            border-top: 2px solid var(--border);
+        }
+
+        .result-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .result-value {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .result-value.positive {
+            color: var(--accent);
+        }
+
+        .result-value.negative {
+            color: var(--red);
+        }
+
+        .success-message {
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .success-message p {
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        /* Info Cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .info-card {
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .info-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .info-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .faq-item {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .faq-question {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .faq-answer {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+
+        /* Footer */
+        .footer-cta {
+            text-align: center;
+            padding: 4rem 0;
+        }
+
+        .footer-text {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: var(--accent);
+            color: var(--bg-primary);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: 2px solid var(--accent);
+        }
+
+        .btn:hover {
+            background: var(--accent-dim);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">
+            <svg class="logo-svg" viewBox="0 0 200 200">
+                <defs>
+                    <linearGradient id="inflationLogoGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#22c55e" />
+                        <stop offset="100%" style="stop-color:#16a34a" />
+                    </linearGradient>
+                </defs>
+                <g transform="translate(100, 100)">
+                    <rect x="-40" y="-40" width="6" height="80" fill="url(#inflationLogoGrad)"/>
+                    <rect x="-20" y="-30" width="6" height="70" fill="url(#inflationLogoGrad)" opacity="0.8"/>
+                    <rect x="0" y="-25" width="6" height="65" fill="url(#inflationLogoGrad)" opacity="0.7"/>
+                    <rect x="20" y="-30" width="6" height="70" fill="url(#inflationLogoGrad)" opacity="0.8"/>
+                    <rect x="40" y="-40" width="6" height="80" fill="url(#inflationLogoGrad)"/>
+                    <rect x="-43" y="-45" width="92" height="8" fill="url(#inflationLogoGrad)"/>
+                    <rect x="-50" y="40" width="106" height="5" fill="url(#inflationLogoGrad)" opacity="0.6"/>
+                    <circle cx="3" cy="0" r="50" fill="none" stroke="url(#inflationLogoGrad)" stroke-width="1.5" opacity="0.4"/>
+                </g>
+            </svg>
+            <span>AGORA<span style="color: var(--text-primary);">.</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html#how-it-works">How It Works</a>
+            <a href="index.html#features">Features</a>
+            <a href="inflation.html" class="active">Inflation</a>
+            <a href="treasury.html">Treasury</a>
+            <a href="https://github.com/agora-protocol" target="_blank">GitHub</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header-section">
+            <h1>Inflation Model</h1>
+            <p class="subtitle">
+                Unlike fiat currencies, AGORA inflation funds universal basic income 
+                and naturally decreases toward equilibrium over time
+            </p>
+        </div>
+
+        <!-- Key Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">23.5%</div>
+                <div class="stat-label">Year 5 Inflation</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">12.6%</div>
+                <div class="stat-label">Year 10 Inflation</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">6.4%</div>
+                <div class="stat-label">Year 20 Inflation</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">~4%</div>
+                <div class="stat-label">Long-term Equilibrium</div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-section">
+            <h2 class="chart-title">30-Year Inflation Projection</h2>
+            
+            <div class="chart-container">
+                <canvas id="inflationChart"></canvas>
+            </div>
+            
+            <p class="chart-note">
+                Inflation naturally decreases as fixed daily minting (100 AGORA/person) 
+                becomes a smaller percentage of growing total supply
+            </p>
+            
+            <div class="model-explanation">
+                <h3>📊 How We Calculate This (Transparent Model)</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Our inflation model is based on these simple, verifiable assumptions:
+                </p>
+                
+                <div class="formula-box">
+                    Annual Inflation Rate = (New Tokens Minted Per Year) / (Total Supply) × 100
+                </div>
+                
+                <ul style="color: var(--text-secondary); line-height: 1.8; list-style: none; padding-left: 0;">
+                    <li>✓ <strong>Daily Minting:</strong> 100 AGORA × number of verified users</li>
+                    <li>✓ <strong>User Growth:</strong> S-curve reaching 822M users by year 20 (based on internet adoption patterns)</li>
+                    <li>✓ <strong>Initial Claims:</strong> Adults get 36,500 AGORA (1 year retroactive), babies get proportional</li>
+                    <li>✓ <strong>Burn Rate:</strong> 0.05% base fee on transactions (50% burned, 50% to treasury)</li>
+                </ul>
+                
+                <p style="color: var(--text-muted); margin-top: 1rem; font-size: 0.9rem;">
+                    <strong>Example Year 10:</strong> With 608M users, daily mint is 60.8B AGORA. 
+                    Annual mint is 22.2T AGORA. Total supply is 194.8T AGORA. 
+                    Inflation = 22.2T / 194.8T = 12.6%
+                </p>
+            </div>
+        </div>
+
+        <!-- Calculator Section -->
+        <div class="calculator-section">
+            <h2 class="chart-title">Personal Impact Calculator</h2>
+            
+            <div style="background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-primary);">
+                    💡 How This Works
+                </h3>
+                <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem;">
+                    This calculator shows how AGORA inflation affects YOU personally:
+                </p>
+                <ol style="color: var(--text-secondary); line-height: 2; padding-left: 1.5rem;">
+                    <li><strong>You receive:</strong> 36,500 AGORA per year (100 AGORA × 365 days)</li>
+                    <li><strong>Inflation cost:</strong> Your holdings × inflation rate</li>
+                    <li><strong>Net benefit:</strong> What you receive MINUS inflation cost</li>
+                </ol>
+                <p style="color: var(--accent); margin-top: 1rem; font-weight: 600;">
+                    Key insight: You always receive the same 36,500 AGORA, but inflation only affects what you're holding!
+                </p>
+            </div>
+            
+            <div class="calculator-grid">
+                <div>
+                    <div class="input-group">
+                        <label class="input-label">How much AGORA do you hold?</label>
+                        <input type="number" id="holdingAmount" value="10000" min="0">
+                        <div class="quick-amounts">
+                            <button class="quick-btn" onclick="setHolding(1000)">1K</button>
+                            <button class="quick-btn" onclick="setHolding(10000)">10K</button>
+                            <button class="quick-btn" onclick="setHolding(50000)">50K</button>
+                            <button class="quick-btn" onclick="setHolding(100000)">100K</button>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Select year</label>
+                        <select id="yearSelect" onchange="calculateImpact()">
+                            <option value="5">Year 5 (23.5% inflation)</option>
+                            <option value="10" selected>Year 10 (12.6% inflation)</option>
+                            <option value="15">Year 15 (8.6% inflation)</option>
+                            <option value="20">Year 20 (6.4% inflation)</option>
+                            <option value="30">Year 30 (~4% inflation)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="results-card">
+                        <h3 class="results-title">Your Annual Result</h3>
+                        
+                        <div class="result-row">
+                            <span class="result-label">You receive (UBI):</span>
+                            <span class="result-value positive" id="ubiAmount">+36,500</span>
+                        </div>
+                        
+                        <div class="result-row">
+                            <span class="result-label">Inflation impact:</span>
+                            <span class="result-value negative" id="inflationImpact">-1,260</span>
+                        </div>
+                        
+                        <div class="result-row">
+                            <span class="result-label">Net benefit:</span>
+                            <span class="result-value positive" id="netBenefit">+35,240</span>
+                        </div>
+                        
+                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                            <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;" id="explanation">
+                                <strong>Example:</strong> If you hold 10,000 AGORA in Year 10 (12.6% inflation), 
+                                you lose 1,260 AGORA in purchasing power. But you receive 36,500 AGORA in UBI. 
+                                Net gain: +35,240 AGORA!
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="success-message" id="successMessage" style="display: none;">
+                        <p id="successText"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Why It's Different -->
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>🎯 Fair Distribution</h3>
+                <p>
+                    New tokens go to every verified human equally, not to banks or miners. 
+                    You receive 100 AGORA daily regardless of wealth.
+                </p>
+            </div>
+            
+            <div class="info-card">
+                <h3>📉 Naturally Declining</h3>
+                <p>
+                    Fixed daily minting becomes a smaller % of total supply. 
+                    Mathematically guaranteed decreasing inflation.
+                </p>
+            </div>
+            
+            <div class="info-card">
+                <h3>🔥 Built-in Burn</h3>
+                <p>
+                    Personalized transaction fees create equilibrium. 
+                    Active users pay less, speculators pay more.
+                </p>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <h2 class="chart-title">Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <h3 class="faq-question">Is 23% inflation sustainable?</h3>
+                <p class="faq-answer">
+                    Yes! It's only in early years and you receive FAR more in UBI (36,500 AGORA annually) 
+                    than you lose to inflation. Bitcoin started with 100% inflation!
+                </p>
+            </div>
+            
+            <div class="faq-item">
+                <h3 class="faq-question">Will AGORA become worthless?</h3>
+                <p class="faq-answer">
+                    No. Burn mechanisms ensure supply/demand balance. 
+                    Network effects (Metcalfe's Law) increase value faster than supply grows.
+                </p>
+            </div>
+            
+            <div class="faq-item">
+                <h3 class="faq-question">Why not zero inflation?</h3>
+                <p class="faq-answer">
+                    Zero inflation = zero UBI. The inflation IS the basic income. 
+                    New tokens fund 100 AGORA/day for every human.
+                </p>
+            </div>
+            
+            <div class="faq-item">
+                <h3 class="faq-question">Can inflation be controlled?</h3>
+                <p class="faq-answer">
+                    Yes. DAO can adjust burn rates. Natural limits exist (population). 
+                    System self-balances through economic incentives.
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer CTA -->
+        <div class="footer-cta">
+            <p class="footer-text">
+                AGORA inflation works FOR people, not against them
+            </p>
+            <a href="AGORA_Manifesto_v1_0_FINAL.md" class="btn">Read Full Manifesto</a>
+        </div>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // Inflation data
+        const inflationData = [
+            { year: 0, inflation: 100 },
+            { year: 1, inflation: 89.2 },
+            { year: 5, inflation: 23.5 },
+            { year: 10, inflation: 12.6 },
+            { year: 15, inflation: 8.6 },
+            { year: 20, inflation: 6.4 },
+            { year: 25, inflation: 5.0 },
+            { year: 30, inflation: 4.0 }
+        ];
+
+        // Create chart
+        const ctx = document.getElementById('inflationChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: inflationData.map(d => `Year ${d.year}`),
+                datasets: [{
+                    label: 'Inflation Rate (%)',
+                    data: inflationData.map(d => d.inflation),
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#22c55e',
+                    pointBorderColor: '#0a0a0b',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#16a34a',
+                    pointHoverBorderColor: '#0a0a0b',
+                    pointHoverBorderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            color: '#a1a1aa',
+                            font: {
+                                size: 12,
+                                family: "'Space Mono', monospace"
+                            }
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(26, 26, 29, 0.95)',
+                        titleColor: '#fafafa',
+                        bodyColor: '#a1a1aa',
+                        borderColor: '#27272a',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold',
+                            family: "'Space Mono', monospace"
+                        },
+                        bodyFont: {
+                            size: 12,
+                            family: "'Space Mono', monospace"
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return `Inflation: ${context.parsed.y.toFixed(1)}%`;
+                            },
+                            afterLabel: function(context) {
+                                const explanations = {
+                                    0: 'Launch - Initial distribution',
+                                    1: 'Very high - Bootstrap phase',
+                                    5: 'High growth phase',
+                                    10: 'Stabilizing',
+                                    15: 'Maturing',
+                                    20: 'Near equilibrium',
+                                    25: 'Steady state approaching',
+                                    30: 'Long-term equilibrium'
+                                };
+                                const year = inflationData[context.dataIndex].year;
+                                return explanations[year] || '';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        grid: {
+                            color: 'rgba(39, 39, 42, 0.3)',
+                            borderColor: '#27272a',
+                            drawBorder: true,
+                            drawOnChartArea: true,
+                            drawTicks: true
+                        },
+                        ticks: {
+                            color: '#71717a',
+                            font: {
+                                size: 11,
+                                family: "'Space Mono', monospace"
+                            }
+                        }
+                    },
+                    y: {
+                        display: true,
+                        min: 0,
+                        max: 105,
+                        grid: {
+                            color: 'rgba(39, 39, 42, 0.3)',
+                            borderColor: '#27272a',
+                            drawBorder: true,
+                            drawOnChartArea: true,
+                            drawTicks: true
+                        },
+                        ticks: {
+                            color: '#71717a',
+                            font: {
+                                size: 11,
+                                family: "'Space Mono', monospace"
+                            },
+                            stepSize: 10,
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Annual Inflation Rate (%)',
+                            color: '#a1a1aa',
+                            font: {
+                                size: 12,
+                                family: "'Space Mono', monospace"
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Calculator functions
+        function calculateImpact() {
+            const holdingAmount = parseFloat(document.getElementById('holdingAmount').value) || 0;
+            const selectedYear = parseInt(document.getElementById('yearSelect').value);
+            
+            const inflationRates = {
+                1: 0.892,
+                5: 0.235,
+                10: 0.126,
+                15: 0.086,
+                20: 0.064,
+                25: 0.05,
+                30: 0.04
+            };
+            
+            const inflation = inflationRates[selectedYear] || 0.05;
+            const annualUBI = 36500;
+            const inflationCost = Math.round(holdingAmount * inflation);
+            const netBenefit = annualUBI - inflationCost;
+            
+            // Update display
+            document.getElementById('ubiAmount').textContent = '+' + annualUBI.toLocaleString() + ' AGORA';
+            document.getElementById('inflationImpact').textContent = '-' + inflationCost.toLocaleString() + ' AGORA';
+            document.getElementById('netBenefit').textContent = (netBenefit >= 0 ? '+' : '') + netBenefit.toLocaleString() + ' AGORA';
+            
+            // Update explanation text
+            const inflationPercent = (inflation * 100).toFixed(1);
+            const explanationText = `If you hold ${holdingAmount.toLocaleString()} AGORA in Year ${selectedYear} (${inflationPercent}% inflation), ` +
+                                  `you lose ${inflationCost.toLocaleString()} AGORA in purchasing power. ` +
+                                  `But you receive ${annualUBI.toLocaleString()} AGORA in UBI. ` +
+                                  `Net ${netBenefit >= 0 ? 'gain' : 'loss'}: ${netBenefit >= 0 ? '+' : ''}${netBenefit.toLocaleString()} AGORA!`;
+            
+            document.getElementById('explanation').innerHTML = `<strong>Your calculation:</strong> ${explanationText}`;
+            
+            // Update net benefit color
+            const netBenefitEl = document.getElementById('netBenefit');
+            netBenefitEl.className = netBenefit >= 0 ? 'result-value positive' : 'result-value negative';
+            
+            // Update success message
+            const successMessage = document.getElementById('successMessage');
+            const successText = document.getElementById('successText');
+            
+            if (netBenefit > 0 && inflationCost > 0) {
+                const multiplier = Math.round(annualUBI / inflationCost);
+                successText.innerHTML = 
+                    `✅ You receive <strong>${multiplier}x more</strong> in UBI than you lose to inflation! ` +
+                    `(${annualUBI.toLocaleString()} received ÷ ${inflationCost.toLocaleString()} lost = ${multiplier}x)`;
+                successMessage.style.display = 'block';
+            } else if (inflationCost === 0) {
+                successText.innerHTML = 
+                    `✅ You have no holdings, so inflation doesn't affect you. You get pure ${annualUBI.toLocaleString()} AGORA gain!`;
+                successMessage.style.display = 'block';
+            } else {
+                successMessage.style.display = 'none';
+            }
+        }
+
+        function setHolding(amount) {
+            document.getElementById('holdingAmount').value = amount;
+            calculateImpact();
+        }
+
+        // Initialize calculator
+        document.getElementById('holdingAmount').addEventListener('input', calculateImpact);
+        calculateImpact();
+    </script>
+</body>
+</html>
