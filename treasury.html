@@ -647,6 +647,54 @@
                 align-items: start;
                 gap: 1rem;
             }
+            
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--bg-primary);
+                flex-direction: column;
+                padding: 1rem 2rem;
+                gap: 1rem;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .hamburger {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                cursor: pointer;
+                padding: 5px;
+            }
+            
+            .hamburger span {
+                width: 25px;
+                height: 2px;
+                background: var(--text-primary);
+                transition: 0.3s;
+            }
+            
+            .hamburger.active span:nth-child(1) {
+                transform: rotate(45deg) translate(5px, 5px);
+            }
+            
+            .hamburger.active span:nth-child(2) {
+                opacity: 0;
+            }
+            
+            .hamburger.active span:nth-child(3) {
+                transform: rotate(-45deg) translate(5px, -5px);
+            }
+        }
+        
+        .hamburger {
+            display: none;
         }
     </style>
 </head>
@@ -678,7 +726,12 @@
             <a href="index.html">Home</a>
             <a href="inflation.html">Inflation</a>
             <a href="treasury.html" class="active">Treasury</a>
-            <a href="https://github.com/agora-protocol" target="_blank">GitHub</a>
+            <a href="https://github.com/agoraubi/agoraubi.org" target="_blank">GitHub</a>
+        </div>
+        <div class="hamburger" onclick="this.classList.toggle('active'); document.querySelector('.nav-links').classList.toggle('active');">
+            <span></span>
+            <span></span>
+            <span></span>
         </div>
     </nav>
 

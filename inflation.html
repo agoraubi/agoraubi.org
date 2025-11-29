@@ -482,11 +482,55 @@
 
             .nav-links {
                 display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--bg-primary);
+                flex-direction: column;
+                padding: 1rem 2rem;
+                gap: 1rem;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .hamburger {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                cursor: pointer;
+                padding: 5px;
+            }
+            
+            .hamburger span {
+                width: 25px;
+                height: 2px;
+                background: var(--text-primary);
+                transition: 0.3s;
+            }
+            
+            .hamburger.active span:nth-child(1) {
+                transform: rotate(45deg) translate(5px, 5px);
+            }
+            
+            .hamburger.active span:nth-child(2) {
+                opacity: 0;
+            }
+            
+            .hamburger.active span:nth-child(3) {
+                transform: rotate(-45deg) translate(5px, -5px);
             }
 
             .stat-value {
                 font-size: 2rem;
             }
+        }
+        
+        .hamburger {
+            display: none;
         }
     </style>
 </head>
@@ -518,7 +562,12 @@
             <a href="index.html#features">Features</a>
             <a href="inflation.html" class="active">Inflation</a>
             <a href="treasury.html">Treasury</a>
-            <a href="https://github.com/agora-protocol" target="_blank">GitHub</a>
+            <a href="https://github.com/agoraubi/agoraubi.org" target="_blank">GitHub</a>
+        </div>
+        <div class="hamburger" onclick="this.classList.toggle('active'); document.querySelector('.nav-links').classList.toggle('active');">
+            <span></span>
+            <span></span>
+            <span></span>
         </div>
     </nav>
 
@@ -547,7 +596,7 @@
                 <div class="stat-label">Year 20 Inflation</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value">~4%</div>
+                <div class="stat-value">≈4%</div>
                 <div class="stat-label">Long-term Equilibrium</div>
             </div>
         </div>
@@ -631,7 +680,7 @@
                             <option value="10" selected>Year 10 (12.6% inflation)</option>
                             <option value="15">Year 15 (8.6% inflation)</option>
                             <option value="20">Year 20 (6.4% inflation)</option>
-                            <option value="30">Year 30 (~4% inflation)</option>
+                            <option value="30">Year 30 (≈4% inflation)</option>
                         </select>
                     </div>
                 </div>
@@ -740,7 +789,7 @@
             <p class="footer-text">
                 AGORA inflation works FOR people, not against them
             </p>
-            <a href="AGORA_Manifesto_v1_0_FINAL.md" class="btn">Read Full Manifesto</a>
+            <a href="manifesto.md" class="btn">Read Full Manifesto</a>
         </div>
     </div>
 
