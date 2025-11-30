@@ -1,0 +1,27 @@
+[package]
+name = "agora-core"
+version = "1.0.0"
+description = "AGORA Core - IMMUTABLE UBI distribution (100 AGORA/day forever)"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/agoraubi/agora-protocol"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "agora_core"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.29.0"
+anchor-spl = "0.29.0"
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1
