@@ -8,6 +8,9 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="alternate icon" href="favicon.svg">
     
+    <!-- Data Source -->
+    <script src="data.js"></script>
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -725,7 +728,7 @@
         <div class="nav-links">
             <a href="index.html">Home</a>
             <a href="inflation.html">Inflation</a>
-            <a href="treasury.html" class="active">Treasury</a>
+            <a href="dao.html">DAO</a>
             <a href="https://github.com/agoraubi/agoraubi.org" target="_blank">GitHub</a>
         </div>
         <div class="hamburger" onclick="this.classList.toggle('active'); document.querySelector('.nav-links').classList.toggle('active');">
@@ -755,36 +758,36 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-label">Pool Balance</div>
-                    <div class="stat-value">7,500 SOL</div>
+                    <div class="stat-value" id="gaspool-balance">- SOL</div>
                     <div class="stat-subtitle">Available for gas fees</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Users Covered</div>
-                    <div class="stat-value">75,000</div>
+                    <div class="stat-value" id="gaspool-users">-</div>
                     <div class="stat-subtitle">Monthly claims for 1 year</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Monthly Burn Rate</div>
-                    <div class="stat-value">150 SOL</div>
+                    <div class="stat-value" id="gaspool-monthly">- SOL</div>
                     <div class="stat-subtitle">Current usage</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Months Remaining</div>
-                    <div class="stat-value">50</div>
-                    <div class="stat-subtitle">At current rate</div>
+                    <div class="stat-label">Active Sponsors</div>
+                    <div class="stat-value" id="gaspool-sponsors">-</div>
+                    <div class="stat-subtitle">Contributing to pool</div>
                 </div>
             </div>
             <!-- Coverage Indicator -->
             <div class="info-box" style="text-align: center; padding: 2rem;">
-                <div style="font-size: 3rem; color: var(--accent); font-weight: 700;">50 months</div>
+                <div style="font-size: 3rem; color: var(--accent); font-weight: 700;" id="gaspool-months">- months</div>
                 <div style="color: var(--text-secondary); margin-top: 0.5rem;">Gas fees covered at current usage</div>
                 <div style="margin-top: 1.5rem;">
                     <div style="background: var(--bg-tertiary); border-radius: 8px; overflow: hidden; height: 30px;">
-                        <div style="background: var(--accent); height: 100%; width: 75%; transition: width 0.3s;"></div>
+                        <div style="background: var(--accent); height: 100%; transition: width 0.3s;" id="gaspool-progress"></div>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
-                        <span>Used: 2,500 SOL</span>
-                        <span>Available: 7,500 SOL</span>
+                        <span id="gaspool-used">Used: - SOL</span>
+                        <span id="gaspool-available">Available: - SOL</span>
                     </div>
                 </div>
             </div>
@@ -1067,22 +1070,22 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-label">Treasury Balance</div>
-                    <div class="stat-value">120.0 SOL</div>
-                    <div class="stat-subtitle">≈ $14,400 USD</div>
+                    <div class="stat-value" id="dao-balance">- SOL</div>
+                    <div class="stat-subtitle">Available for proposals</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Active Proposals</div>
-                    <div class="stat-value">2</div>
+                    <div class="stat-value" id="dao-proposals">-</div>
                     <div class="stat-subtitle">Voting in progress</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Total Spent</div>
-                    <div class="stat-value">0.0 SOL</div>
+                    <div class="stat-value" id="dao-spent">- SOL</div>
                     <div class="stat-subtitle">All-time expenditures</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Total Voters</div>
-                    <div class="stat-value">60</div>
+                    <div class="stat-value" id="dao-voters">-</div>
                     <div class="stat-subtitle">Funding contributors</div>
                 </div>
             </div>
@@ -1093,8 +1096,8 @@
                 <ul>
                     <li>Every funding contributor has 1 vote (not weighted by amount)</li>
                     <li>All treasury expenditures require community approval</li>
-                    <li>Voting tiers: 24h for <1 SOL, 3 days for 1-10 SOL, 7 days for >10 SOL</li>
-                    <li>Proposals pass with >50% yes votes + minimum quorum</li>
+                    <li>Voting tiers: 24h for &lt;1 SOL, 3 days for 1-10 SOL, 7 days for &gt;10 SOL</li>
+                    <li>Proposals pass with &gt;50% yes votes + minimum quorum</li>
                     <li>Execution is automatic via smart contract (no human intervention)</li>
                     <li>After Year 1, all verified AGORA holders can vote (1 person = 1 vote)</li>
                 </ul>
@@ -1256,9 +1259,35 @@
             }
         }
         
-        // Placeholder for future wallet integration
-        console.log('AGORA Treasury Dashboard');
-        console.log('Direct democracy in action 🗳️');
+        // Populate data from data.js
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gas Pool Stats
+            const gp = AGORA_DATA.gasPool;
+            document.getElementById('gaspool-balance').textContent = AGORA_DATA.formatWithCommas(gp.totalBalance) + ' SOL';
+            document.getElementById('gaspool-users').textContent = AGORA_DATA.formatWithCommas(gp.subsidizedUsers);
+            document.getElementById('gaspool-monthly').textContent = gp.avgMonthlyUsage + ' SOL';
+            document.getElementById('gaspool-sponsors').textContent = gp.activeSponsors;
+            
+            // Calculate months remaining
+            const monthsRemaining = Math.round(gp.totalBalance / gp.avgMonthlyUsage);
+            document.getElementById('gaspool-months').textContent = monthsRemaining + ' months';
+            
+            // Progress bar
+            const totalPool = gp.totalBalance + gp.usedBalance;
+            const usedPercent = Math.round((gp.totalBalance / totalPool) * 100);
+            document.getElementById('gaspool-progress').style.width = usedPercent + '%';
+            document.getElementById('gaspool-used').textContent = 'Used: ' + AGORA_DATA.formatWithCommas(gp.usedBalance) + ' SOL';
+            document.getElementById('gaspool-available').textContent = 'Available: ' + AGORA_DATA.formatWithCommas(gp.totalBalance) + ' SOL';
+            
+            // DAO Treasury Stats
+            const dao = AGORA_DATA.daoTreasury;
+            document.getElementById('dao-balance').textContent = dao.solBalance.toFixed(1) + ' SOL';
+            document.getElementById('dao-proposals').textContent = AGORA_DATA.proposals.daoProposals.filter(p => p.status === 'voting').length;
+            document.getElementById('dao-spent').textContent = dao.totalSpent.toFixed(1) + ' SOL';
+            document.getElementById('dao-voters').textContent = dao.totalVoters;
+        });
+        
+        console.log('AGORA Treasury Dashboard loaded from data.js');
     </script>
 </body>
 </html>

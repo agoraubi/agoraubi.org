@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAO - AGORA Protocol</title>
+    <meta name="description" content="AGORA DAO - Decentralized governance where every verified human has one vote. Proposals, voting, treasury, and sanctions.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.svg">
+    
+    <!-- Data Source -->
+    <script src="data.js"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0a0b;
+            --bg-secondary: #111113;
+            --bg-tertiary: #1a1a1d;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent: #22c55e;
+            --accent-dim: #16a34a;
+            --accent-glow: rgba(34, 197, 94, 0.15);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #27272a;
+            --font-display: 'Syne', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-mono);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Noise texture */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, var(--bg-primary) 0%, transparent 100%);
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px;
+            z-index: 101;
+        }
+        
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: var(--text-primary);
+            transition: 0.3s;
+        }
+        
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 8rem 2rem 4rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .header h1 {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .header h1 .accent {
+            color: var(--accent);
+        }
+
+        .header .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* What is DAO Section */
+        .what-is-dao {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .what-is-dao h2 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+
+        .what-is-dao p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .what-is-dao p:last-child {
+            margin-bottom: 0;
+        }
+
+        .dao-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .dao-feature {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+        }
+
+        .dao-feature .icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .dao-feature h3 {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .dao-feature p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        /* Dashboard Card */
+        .dashboard-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dashboard-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-glow);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .card-title h3 {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .card-arrow {
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        .dashboard-card:hover .card-arrow {
+            transform: translateX(4px);
+            color: var(--accent);
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        /* Card Stats */
+        .card-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .card-stat {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value.warning {
+            color: var(--warning);
+        }
+
+        .stat-value.danger {
+            color: var(--danger);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Mini List in Cards */
+        .mini-list {
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        .mini-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            font-size: 0.8rem;
+        }
+
+        .mini-list-item .label {
+            color: var(--text-secondary);
+        }
+
+        .mini-list-item .value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .mini-list-item .status {
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .status.active {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent);
+        }
+
+        .status.pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .status.ended {
+            background: rgba(113, 113, 122, 0.2);
+            color: var(--text-muted);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 4rem;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .footer-copy {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .dao-features {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--bg-primary);
+                flex-direction: column;
+                padding: 1rem 2rem;
+                gap: 1rem;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .hamburger {
+                display: flex;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="logo">
+            <svg class="logo-svg" viewBox="0 0 200 200">
+                <defs>
+                    <linearGradient id="daoLogoGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#22c55e" />
+                        <stop offset="100%" style="stop-color:#16a34a" />
+                    </linearGradient>
+                </defs>
+                <g transform="translate(100, 100)">
+                    <rect x="-40" y="-40" width="6" height="80" fill="url(#daoLogoGrad)"/>
+                    <rect x="-20" y="-30" width="6" height="70" fill="url(#daoLogoGrad)" opacity="0.8"/>
+                    <rect x="0" y="-25" width="6" height="65" fill="url(#daoLogoGrad)" opacity="0.7"/>
+                    <rect x="20" y="-30" width="6" height="70" fill="url(#daoLogoGrad)" opacity="0.8"/>
+                    <rect x="40" y="-40" width="6" height="80" fill="url(#daoLogoGrad)"/>
+                    <rect x="-43" y="-45" width="92" height="8" fill="url(#daoLogoGrad)"/>
+                    <rect x="-50" y="40" width="106" height="5" fill="url(#daoLogoGrad)" opacity="0.6"/>
+                    <circle cx="3" cy="0" r="50" fill="none" stroke="url(#daoLogoGrad)" stroke-width="1.5" opacity="0.4"/>
+                </g>
+            </svg>
+            <span>AGORA<span style="color: var(--text-primary);">.</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="inflation.html">Inflation</a>
+            <a href="dao.html" class="active">DAO</a>
+            <a href="https://github.com/agoraubi/agoraubi.org" target="_blank">GitHub</a>
+        </div>
+        <div class="hamburger" onclick="this.classList.toggle('active'); document.querySelector('.nav-links').classList.toggle('active');">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><span class="accent">AGORA</span> DAO</h1>
+            <p class="subtitle">
+                Decentralized governance where every verified human has exactly one vote. 
+                No plutocracy. No middlemen. Pure democracy.
+            </p>
+        </div>
+
+        <!-- What is DAO Section -->
+        <div class="what-is-dao">
+            <h2>What is a DAO?</h2>
+            <p>
+                A <strong>DAO</strong> (Decentralized Autonomous Organization) is an organization governed by code and community votes instead of executives and boards. 
+                Rules are written in smart contracts on the blockchain—transparent, immutable, and enforced automatically.
+            </p>
+            <p>
+                Traditional organizations have hierarchies: CEOs make decisions, shareholders vote by wallet size, and power concentrates at the top. 
+                In AGORA's DAO, every verified human has exactly <strong>one vote</strong>—regardless of how many tokens they hold. 
+                A billionaire and a factory worker have equal say. This is democracy as it should be.
+            </p>
+            <p>
+                All decisions—from spending treasury funds to imposing sanctions on governments committing atrocities—are proposed, debated, and voted on publicly. 
+                No backroom deals. No lobbying. Just transparent collective decision-making.
+            </p>
+
+            <div class="dao-features">
+                <div class="dao-feature">
+                    <div class="icon">🗳️</div>
+                    <h3>One Person, One Vote</h3>
+                    <p>Civic Pass verification ensures each human gets exactly one vote</p>
+                </div>
+                <div class="dao-feature">
+                    <div class="icon">📜</div>
+                    <h3>On-Chain Governance</h3>
+                    <p>All proposals and votes are recorded permanently on Solana</p>
+                </div>
+                <div class="dao-feature">
+                    <div class="icon">⚡</div>
+                    <h3>Automatic Execution</h3>
+                    <p>Approved proposals execute automatically—no intermediaries</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Proposals Card -->
+            <a href="proposals.html" class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon">📋</div>
+                        <h3>Proposals</h3>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </div>
+                <p class="card-description">
+                    Submit new proposals or review pending ones. Anyone can propose changes to the protocol, treasury spending, or community initiatives.
+                </p>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="stat-value" id="proposals-active">-</div>
+                        <div class="stat-label">Active Proposals</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="stat-value" id="proposals-total">-</div>
+                        <div class="stat-label">Total Submitted</div>
+                    </div>
+                </div>
+                <div class="mini-list" id="proposals-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </a>
+
+            <!-- Voting Card -->
+            <a href="voting.html" class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon">🗳️</div>
+                        <h3>Voting</h3>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </div>
+                <p class="card-description">
+                    Cast your vote on active proposals. Your single vote counts equally with everyone else's—this is true democracy.
+                </p>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="stat-value" id="voting-pending">-</div>
+                        <div class="stat-label">Awaiting Your Vote</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="stat-value" id="voting-deadline">-</div>
+                        <div class="stat-label">Next Deadline</div>
+                    </div>
+                </div>
+                <div class="mini-list" id="voting-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </a>
+
+            <!-- Treasury Card -->
+            <a href="treasury.html" class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon">🏦</div>
+                        <h3>Treasury</h3>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </div>
+                <p class="card-description">
+                    Community-controlled funds from transaction fees. Every spend requires a DAO vote. Full transparency, no exceptions.
+                </p>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="stat-value" id="treasury-agora">-</div>
+                        <div class="stat-label">AGORA Balance</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="stat-value" id="treasury-gas">-</div>
+                        <div class="stat-label">SOL Gas Pool</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="stat-value" id="treasury-dao">-</div>
+                        <div class="stat-label">DAO Governance SOL</div>
+                    </div>
+                </div>
+                <div class="mini-list" id="treasury-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </a>
+
+            <!-- Sanctions Card -->
+            <a href="sanctions.html" class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon">⚖️</div>
+                        <h3>Sanctions</h3>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </div>
+                <p class="card-description">
+                    Economic accountability for nations. When governments commit atrocities, the DAO can vote to reduce UBI for their citizens—pressuring change without punishing individuals completely.
+                </p>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="stat-value warning" id="sanctions-active">-</div>
+                        <div class="stat-label">Active Sanctions</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="stat-value" id="sanctions-historical">-</div>
+                        <div class="stat-label">Historical</div>
+                    </div>
+                </div>
+                <div class="mini-list" id="sanctions-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="inflation.html">Inflation</a>
+            <a href="dao.html">DAO</a>
+            <a href="https://github.com/agoraubi/agoraubi.org" target="_blank">GitHub</a>
+            <a href="manifesto.md" target="_blank">Manifesto</a>
+        </div>
+        <p class="footer-copy">AGORA Protocol — Money for humans, governed by humans</p>
+    </footer>
+
+    <!-- Populate data from data.js -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Proposals
+            document.getElementById('proposals-active').textContent = AGORA_DATA.proposals.activeCount;
+            document.getElementById('proposals-total').textContent = AGORA_DATA.proposals.totalCount;
+            
+            const proposalsList = document.getElementById('proposals-list');
+            AGORA_DATA.proposals.items.slice(0, 2).forEach(p => {
+                const statusClass = p.status === 'voting' ? 'active' : (p.status === 'review' ? 'pending' : 'ended');
+                const statusText = p.status.charAt(0).toUpperCase() + p.status.slice(1);
+                proposalsList.innerHTML += `
+                    <div class="mini-list-item">
+                        <span class="label">${p.id}: ${p.title}</span>
+                        <span class="status ${statusClass}">${statusText}</span>
+                    </div>
+                `;
+            });
+
+            // Voting
+            document.getElementById('voting-pending').textContent = AGORA_DATA.voting.pendingVotes;
+            document.getElementById('voting-deadline').textContent = AGORA_DATA.getTimeRemaining(AGORA_DATA.voting.nextDeadline).text;
+            
+            const votingList = document.getElementById('voting-list');
+            AGORA_DATA.proposals.items.filter(p => p.status === 'voting').slice(0, 2).forEach(p => {
+                const pct = AGORA_DATA.getVotePercentage(p.votesYes, p.votesNo);
+                votingList.innerHTML += `
+                    <div class="mini-list-item">
+                        <span class="label">${p.id}: ${p.title.substring(0, 20)}...</span>
+                        <span class="value">${pct}% Yes</span>
+                    </div>
+                `;
+            });
+
+            // Treasury
+            document.getElementById('treasury-agora').textContent = AGORA_DATA.formatNumber(AGORA_DATA.treasury.agoraBalance);
+            document.getElementById('treasury-gas').textContent = AGORA_DATA.formatWithCommas(AGORA_DATA.gasPool.totalBalance);
+            document.getElementById('treasury-dao').textContent = AGORA_DATA.daoTreasury.solBalance.toFixed(1);
+            
+            const treasuryList = document.getElementById('treasury-list');
+            treasuryList.innerHTML = `
+                <div class="mini-list-item">
+                    <span class="label">Last 30 days inflow</span>
+                    <span class="value">+${AGORA_DATA.formatWithCommas(AGORA_DATA.treasury.inflowLast30Days)} AGORA</span>
+                </div>
+                <div class="mini-list-item">
+                    <span class="label">Last 30 days outflow</span>
+                    <span class="value">-${AGORA_DATA.formatWithCommas(AGORA_DATA.treasury.outflowLast30Days)} AGORA</span>
+                </div>
+            `;
+
+            // Sanctions
+            document.getElementById('sanctions-active').textContent = AGORA_DATA.sanctions.activeCount;
+            document.getElementById('sanctions-historical').textContent = AGORA_DATA.sanctions.historicalCount;
+            
+            const sanctionsList = document.getElementById('sanctions-list');
+            if (AGORA_DATA.sanctions.active.length > 0) {
+                const s = AGORA_DATA.sanctions.active[0];
+                const daysLeft = Math.ceil((new Date(s.expiresAt) - new Date()) / (1000 * 60 * 60 * 24));
+                sanctionsList.innerHTML = `
+                    <div class="mini-list-item">
+                        <span class="label">${s.countryName} - ${s.reason}</span>
+                        <span class="status active">${AGORA_DATA.sanctionRateToPercent(s.sanctionRate)}% UBI</span>
+                    </div>
+                    <div class="mini-list-item">
+                        <span class="label">Expires in ${daysLeft} days</span>
+                        <span class="value">↻ Review pending</span>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
