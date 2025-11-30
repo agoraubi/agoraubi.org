@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposals - AGORA DAO</title>
+    <meta name="description" content="Submit and review governance proposals for the AGORA Protocol. Anyone can propose changes to the protocol.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.svg">
+    
+    <!-- Data Source -->
+    <script src="data.js"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0a0b;
+            --bg-secondary: #111113;
+            --bg-tertiary: #1a1a1d;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent: #22c55e;
+            --accent-dim: #16a34a;
+            --accent-glow: rgba(34, 197, 94, 0.15);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #27272a;
+            --font-display: 'Syne', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-mono);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Noise texture */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, var(--bg-primary) 0%, transparent 100%);
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-right: 2rem;
+        }
+        .logo-svg { width: 40px; height: 40px; }
+        .logo span { color: var(--accent); }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover, .nav-links a.active { color: var(--text-primary); }
+
+        /* Hamburger */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px;
+            z-index: 101;
+        }
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: var(--text-primary);
+            transition: 0.3s;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 8rem 2rem 4rem;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 3rem;
+        }
+        .header h1 {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        .header h1 .accent { color: var(--accent); }
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        .breadcrumb {
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
+        .breadcrumb a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .breadcrumb span { color: var(--text-muted); }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .filter-tab:hover { border-color: var(--accent); }
+        .filter-tab.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+        }
+
+        /* Proposal Card */
+        .proposal-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+        .proposal-card:hover {
+            border-color: var(--accent);
+        }
+
+        .proposal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        .proposal-id {
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+        .proposal-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .proposal-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-voting {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent);
+        }
+        .status-review {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+        .status-passed {
+            background: rgba(34, 197, 94, 0.3);
+            color: var(--accent);
+        }
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .proposal-meta {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        .proposal-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .proposal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        .vote-summary {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .vote-bar {
+            width: 150px;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .vote-bar-fill {
+            height: 100%;
+            background: var(--accent);
+        }
+        .vote-percent {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .btn-view {
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .btn-view:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Create Proposal Button */
+        .btn-create {
+            padding: 0.75rem 1.5rem;
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .btn-create:hover {
+            background: var(--accent-dim);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 4rem;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+        .footer-links a:hover { color: var(--accent); }
+        .footer-copy {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-bar { flex-direction: column; gap: 1rem; }
+            .proposal-header { flex-direction: column; gap: 1rem; }
+            .proposal-meta { flex-wrap: wrap; }
+            .proposal-footer { flex-direction: column; gap: 1rem; align-items: flex-start; }
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%; left: 0; right: 0;
+                background: var(--bg-primary);
+                flex-direction: column;
+                padding: 1rem 2rem;
+                gap: 1rem;
+                border-bottom: 1px solid var(--border);
+            }
+            .nav-links.active { display: flex; }
+            .hamburger { display: flex; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">
+            <svg class="logo-svg" viewBox="0 0 200 200">
+                <defs>
+                    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#22c55e" />
+                        <stop offset="100%" style="stop-color:#16a34a" />
+                    </linearGradient>
+                </defs>
+                <g transform="translate(100, 100)">
+                    <rect x="-40" y="-40" width="6" height="80" fill="url(#logoGrad)"/>
+                    <rect x="-20" y="-30" width="6" height="70" fill="url(#logoGrad)" opacity="0.8"/>
+                    <rect x="0" y="-25" width="6" height="65" fill="url(#logoGrad)" opacity="0.7"/>
+                    <rect x="20" y="-30" width="6" height="70" fill="url(#logoGrad)" opacity="0.8"/>
+                    <rect x="40" y="-40" width="6" height="80" fill="url(#logoGrad)"/>
+                    <rect x="-43" y="-45" width="92" height="8" fill="url(#logoGrad)"/>
+                    <rect x="-50" y="40" width="106" height="5" fill="url(#logoGrad)" opacity="0.6"/>
+                    <circle cx="3" cy="0" r="50" fill="none" stroke="url(#logoGrad)" stroke-width="1.5" opacity="0.4"/>
+                </g>
+            </svg>
+            <span>AGORA<span style="color: var(--text-primary);">.</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="inflation.html">Inflation</a>
+            <a href="dao.html" class="active">DAO</a>
+            <a href="https://github.com/agoraubi/agoraubi.org" target="_blank">GitHub</a>
+        </div>
+        <div class="hamburger" onclick="this.classList.toggle('active'); document.querySelector('.nav-links').classList.toggle('active');">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="dao.html">DAO</a> <span>→ Proposals</span>
+        </div>
+
+        <div class="header">
+            <h1><span class="accent">Proposals</span></h1>
+            <p>Submit and review governance proposals. Anyone can propose changes to the protocol.</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="stat-active">-</div>
+                <div class="stat-label">Active</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-review">-</div>
+                <div class="stat-label">In Review</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-passed">-</div>
+                <div class="stat-label">Passed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-total">-</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div style="flex: 1;"></div>
+            <button class="btn-create" onclick="alert('Connect wallet to create proposal')">+ New Proposal</button>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">All</button>
+            <button class="filter-tab" data-filter="voting">Voting</button>
+            <button class="filter-tab" data-filter="review">In Review</button>
+            <button class="filter-tab" data-filter="passed">Passed</button>
+            <button class="filter-tab" data-filter="rejected">Rejected</button>
+        </div>
+
+        <div id="proposals-list">
+            <!-- Populated by JavaScript -->
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="dao.html">DAO</a>
+            <a href="https://github.com/agoraubi/agoraubi.org" target="_blank">GitHub</a>
+            <a href="manifesto.md" target="_blank">Manifesto</a>
+        </div>
+        <p class="footer-copy">AGORA Protocol — Money for humans, governed by humans</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const proposals = AGORA_DATA.proposals.items;
+            
+            // Stats
+            document.getElementById('stat-active').textContent = proposals.filter(p => p.status === 'voting').length;
+            document.getElementById('stat-review').textContent = proposals.filter(p => p.status === 'review').length;
+            document.getElementById('stat-passed').textContent = proposals.filter(p => p.status === 'passed').length;
+            document.getElementById('stat-total').textContent = AGORA_DATA.proposals.totalCount;
+
+            // Render proposals
+            function renderProposals(filter = 'all') {
+                const list = document.getElementById('proposals-list');
+                list.innerHTML = '';
+                
+                const filtered = filter === 'all' ? proposals : proposals.filter(p => p.status === filter);
+                
+                filtered.forEach(p => {
+                    const pct = AGORA_DATA.getVotePercentage(p.votesYes, p.votesNo);
+                    const timeLeft = p.endTime ? AGORA_DATA.getTimeRemaining(p.endTime).text : 'Pending';
+                    
+                    const statusClass = {
+                        'voting': 'status-voting',
+                        'review': 'status-review',
+                        'passed': 'status-passed',
+                        'rejected': 'status-rejected'
+                    }[p.status] || 'status-review';
+                    
+                    list.innerHTML += `
+                        <div class="proposal-card">
+                            <div class="proposal-header">
+                                <div>
+                                    <div class="proposal-id">${p.id}</div>
+                                    <div class="proposal-title">${p.title}</div>
+                                </div>
+                                <div class="proposal-status ${statusClass}">${p.status.charAt(0).toUpperCase() + p.status.slice(1)}</div>
+                            </div>
+                            <div class="proposal-meta">
+                                <span>Type: ${p.type}</span>
+                                <span>Proposer: ${p.proposer}</span>
+                                <span>Ends: ${timeLeft}</span>
+                            </div>
+                            <p class="proposal-description">${p.description}</p>
+                            <div class="proposal-footer">
+                                <div class="vote-summary">
+                                    <div class="vote-bar">
+                                        <div class="vote-bar-fill" style="width: ${pct}%"></div>
+                                    </div>
+                                    <span class="vote-percent">${pct}% Yes</span>
+                                    <span style="color: var(--text-muted); font-size: 0.8rem;">(${AGORA_DATA.formatWithCommas(p.votesYes + p.votesNo)} votes)</span>
+                                </div>
+                                <a href="#" class="btn-view">View Details →</a>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            renderProposals();
+
+            // Filter tabs
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    renderProposals(this.dataset.filter);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

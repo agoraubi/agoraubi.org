@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanctions - AGORA DAO</title>
+    <meta name="description" content="Economic accountability for nations. DAO-governed sanctions for countries committing atrocities.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.svg">
+    
+    <!-- Data Source -->
+    <script src="data.js"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0a0b;
+            --bg-secondary: #111113;
+            --bg-tertiary: #1a1a1d;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent: #22c55e;
+            --accent-dim: #16a34a;
+            --accent-glow: rgba(34, 197, 94, 0.15);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #27272a;
+            --font-display: 'Syne', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-mono);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, var(--bg-primary) 0%, transparent 100%);
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-right: 2rem;
+        }
+        .logo-svg { width: 40px; height: 40px; }
+        .logo span { color: var(--accent); }
+
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text-primary); }
+
+        .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 5px; z-index: 101; }
+        .hamburger span { width: 25px; height: 3px; background: var(--text-primary); transition: 0.3s; }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 8rem 2rem 4rem; }
+
+        .breadcrumb { margin-bottom: 1rem; font-size: 0.85rem; }
+        .breadcrumb a { color: var(--accent); text-decoration: none; }
+        .breadcrumb span { color: var(--text-muted); }
+
+        .header { margin-bottom: 2rem; }
+        .header h1 { font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .header h1 .accent { color: var(--accent); }
+        .header p { color: var(--text-secondary); }
+
+        /* Philosophy Box */
+        .philosophy {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+        .philosophy h2 {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--warning);
+        }
+        .philosophy p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+        .philosophy ul {
+            list-style: none;
+            margin-top: 1rem;
+        }
+        .philosophy li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-secondary);
+        }
+        .philosophy li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-box {
+            flex: 1;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .stat-box .value {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .stat-box .value.warning { color: var(--warning); }
+        .stat-box .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Sanction Card */
+        .sanction-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--danger);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .sanction-card.historical {
+            border-color: var(--border);
+            opacity: 0.7;
+        }
+        .sanction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        .sanction-country {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .sanction-code {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .sanction-rate {
+            text-align: right;
+        }
+        .sanction-rate .value {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--danger);
+        }
+        .sanction-rate .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .sanction-reason {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid var(--danger);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+        .sanction-reason .label {
+            font-size: 0.75rem;
+            color: var(--danger);
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+        .sanction-reason .text {
+            color: var(--text-primary);
+        }
+
+        .sanction-meta {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        .meta-item .label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .meta-item .value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .sanction-votes {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        .vote-count {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .vote-count.for { color: var(--accent); }
+        .vote-count.against { color: var(--danger); }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+        }
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+        }
+        .btn-propose {
+            padding: 0.5rem 1rem;
+            background: var(--warning);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        footer {
+            margin-top: 4rem;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+        .footer-links { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1rem; }
+        .footer-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; }
+        .footer-links a:hover { color: var(--accent); }
+        .footer-copy { color: var(--text-muted); font-size: 0.8rem; }
+
+        @media (max-width: 768px) {
+            .stats-row { flex-direction: column; }
+            .sanction-header { flex-direction: column; gap: 1rem; }
+            .sanction-rate { text-align: left; }
+            .sanction-meta { grid-template-columns: 1fr; }
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%; left: 0; right: 0;
+                background: var(--bg-primary);
+                flex-direction: column;
+                padding: 1rem 2rem;
+                gap: 1rem;
+                border-bottom: 1px solid var(--border);
+            }
+            .nav-links.active { display: flex; }
+            .hamburger { display: flex; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">
+            <svg class="logo-svg" viewBox="0 0 200 200">
+                <defs>
+                    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#22c55e" />
+                        <stop offset="100%" style="stop-color:#16a34a" />
+                    </linearGradient>
+                </defs>
+                <g transform="translate(100, 100)">
+                    <rect x="-40" y="-40" width="6" height="80" fill="url(#logoGrad)"/>
+                    <rect x="-20" y="-30" width="6" height="70" fill="url(#logoGrad)" opacity="0.8"/>
+                    <rect x="0" y="-25" width="6" height="65" fill="url(#logoGrad)" opacity="0.7"/>
+                    <rect x="20" y="-30" width="6" height="70" fill="url(#logoGrad)" opacity="0.8"/>
+                    <rect x="40" y="-40" width="6" height="80" fill="url(#logoGrad)"/>
+                    <rect x="-43" y="-45" width="92" height="8" fill="url(#logoGrad)"/>
+                    <rect x="-50" y="40" width="106" height="5" fill="url(#logoGrad)" opacity="0.6"/>
+                    <circle cx="3" cy="0" r="50" fill="none" stroke="url(#logoGrad)" stroke-width="1.5" opacity="0.4"/>
+                </g>
+            </svg>
+            <span>AGORA<span style="color: var(--text-primary);">.</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="inflation.html">Inflation</a>
+            <a href="dao.html" class="active">DAO</a>
+            <a href="https://github.com/agoraubi/agoraubi.org" target="_blank">GitHub</a>
+        </div>
+        <div class="hamburger" onclick="this.classList.toggle('active'); document.querySelector('.nav-links').classList.toggle('active');">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="dao.html">DAO</a> <span>→ Sanctions</span>
+        </div>
+
+        <div class="header">
+            <h1>⚖️ <span class="accent">Country Sanctions</span></h1>
+            <p>Economic accountability for nations committing atrocities.</p>
+        </div>
+
+        <div class="philosophy">
+            <h2>Why Sanctions?</h2>
+            <p>
+                Traditional sanctions hurt ordinary citizens while leaders stay comfortable. 
+                AGORA sanctions are different—they reduce UBI to citizens of sanctioned countries, 
+                but never to zero. Citizens are victims of their governments, not enemies.
+            </p>
+            <p>
+                This creates democratic pressure: when a government's actions cost its citizens economically, 
+                there's motivation for change. All sanctions are temporary, transparent, and require 
+                supermajority approval.
+            </p>
+            <ul>
+                <li><strong>Never zero:</strong> Minimum 5% UBI—citizens are victims too</li>
+                <li><strong>Temporary:</strong> Maximum 1 year, then requires renewal vote</li>
+                <li><strong>Democratic:</strong> Requires 75%+ supermajority to impose</li>
+                <li><strong>Transparent:</strong> All evidence and votes recorded on-chain</li>
+            </ul>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="value warning" id="stat-active">-</div>
+                <div class="label">Active Sanctions</div>
+            </div>
+            <div class="stat-box">
+                <div class="value" id="stat-historical">-</div>
+                <div class="label">Historical</div>
+            </div>
+            <div class="stat-box">
+                <div class="value" id="stat-lifted">-</div>
+                <div class="label">Lifted Early</div>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <h2>🚨 Active Sanctions</h2>
+            <button class="btn-propose" onclick="alert('Connect wallet to propose sanction')">+ Propose Sanction</button>
+        </div>
+
+        <div id="active-sanctions">
+            <!-- Populated by JavaScript -->
+        </div>
+
+        <div class="section-header">
+            <h2>📜 Historical Sanctions</h2>
+        </div>
+
+        <div id="historical-sanctions">
+            <!-- Populated by JavaScript -->
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="dao.html">DAO</a>
+            <a href="https://github.com/agoraubi/agoraubi.org" target="_blank">GitHub</a>
+            <a href="manifesto.md" target="_blank">Manifesto</a>
+        </div>
+        <p class="footer-copy">AGORA Protocol — Money for humans, governed by humans</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sanctions = AGORA_DATA.sanctions;
+
+            // Stats
+            document.getElementById('stat-active').textContent = sanctions.activeCount;
+            document.getElementById('stat-historical').textContent = sanctions.historicalCount;
+            document.getElementById('stat-lifted').textContent = sanctions.historical.filter(s => s.wasLifted).length;
+
+            // Active sanctions
+            const activeList = document.getElementById('active-sanctions');
+            sanctions.active.forEach(s => {
+                const daysLeft = Math.ceil((new Date(s.expiresAt) - new Date()) / (1000 * 60 * 60 * 24));
+                const ubiPercent = AGORA_DATA.sanctionRateToPercent(s.sanctionRate);
+
+                activeList.innerHTML += `
+                    <div class="sanction-card">
+                        <div class="sanction-header">
+                            <div>
+                                <div class="sanction-country">${s.countryName}</div>
+                                <div class="sanction-code">Code: ${s.countryCode}</div>
+                            </div>
+                            <div class="sanction-rate">
+                                <div class="value">${ubiPercent}%</div>
+                                <div class="label">UBI Rate</div>
+                            </div>
+                        </div>
+                        
+                        <div class="sanction-reason">
+                            <div class="label">Reason</div>
+                            <div class="text">${s.reason}</div>
+                        </div>
+
+                        <div class="sanction-meta">
+                            <div class="meta-item">
+                                <div class="label">Imposed</div>
+                                <div class="value">${new Date(s.imposedAt).toLocaleDateString()}</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="label">Expires In</div>
+                                <div class="value">${daysLeft} days</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="label">Proposal</div>
+                                <div class="value">${s.proposalId}</div>
+                            </div>
+                        </div>
+
+                        <div class="sanction-votes">
+                            <div class="vote-count for">
+                                ✓ ${AGORA_DATA.formatWithCommas(s.votesFor)} for
+                            </div>
+                            <div class="vote-count against">
+                                ✗ ${AGORA_DATA.formatWithCommas(s.votesAgainst)} against
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (sanctions.active.length === 0) {
+                activeList.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">No active sanctions.</p>';
+            }
+
+            // Historical sanctions
+            const histList = document.getElementById('historical-sanctions');
+            sanctions.historical.forEach(s => {
+                histList.innerHTML += `
+                    <div class="sanction-card historical">
+                        <div class="sanction-header">
+                            <div>
+                                <div class="sanction-country">${s.countryName}</div>
+                                <div class="sanction-code">Code: ${s.countryCode}</div>
+                            </div>
+                            <div class="sanction-rate">
+                                <div class="value" style="color: var(--accent);">${s.wasLifted ? 'LIFTED' : 'EXPIRED'}</div>
+                                <div class="label">Status</div>
+                            </div>
+                        </div>
+                        
+                        <div class="sanction-reason" style="background: rgba(34, 197, 94, 0.1); border-color: var(--accent);">
+                            <div class="label" style="color: var(--accent);">Original Reason</div>
+                            <div class="text">${s.reason}</div>
+                        </div>
+
+                        ${s.wasLifted ? `
+                        <div class="sanction-meta">
+                            <div class="meta-item">
+                                <div class="label">Duration</div>
+                                <div class="value">${s.duration} days</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="label">Lift Reason</div>
+                                <div class="value">${s.liftReason}</div>
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            if (sanctions.historical.length === 0) {
+                histList.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">No historical sanctions.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
