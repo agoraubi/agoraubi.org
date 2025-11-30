@@ -1,0 +1,27 @@
+[package]
+name = "agora-governance"
+version = "1.0.0"
+description = "AGORA Governance - DAO, sanctions, fees, gas pool (upgradeable by DAO)"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/agoraubi/agora-protocol"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "agora_governance"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.29.0"
+anchor-spl = "0.29.0"
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1
