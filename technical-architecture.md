@@ -1,9 +1,9 @@
 # AGORA Protocol - Technical Architecture
 ## Complete System Specification
 
-**Version 1.4.0**  
+**Version 1.5.0**  
 **November 2025**  
-**Status: Gas Pool Implemented, DAO Pending**
+**Status: DAO Governance Implemented (lib.rs v3.6)**
 
 ---
 
@@ -13,15 +13,17 @@ AGORA Protocol implements Universal Basic Income on Solana blockchain, distribut
 
 **Key Innovation:** Money that cannot be bought - only earned through humanity or economic activity.
 
-**Implementation Status (v3.4):**
+**Implementation Status (v3.6):**
 - ✅ Core token distribution
 - ✅ User registration & biometric deduplication  
 - ✅ Merchant auto-detection
 - ✅ Activity-based fees
 - ✅ Annual liveness verification
-- ✅ **Gas Pool system (NEW)**
+- ✅ Gas Pool system
+- ✅ Treasury Mint system
+- ✅ **DAO Governance system (NEW)** — proposals, voting, bonds, reputation
+- ✅ **Country sanctions system (NEW)** — democratic response to atrocities
 - ⏳ Civic Pass integration (placeholder)
-- ⏳ DAO Governance (pending)
 
 ---
 
@@ -36,9 +38,11 @@ AGORA Protocol implements Universal Basic Income on Solana blockchain, distribut
 7. [Governance Structure](#7-governance-structure)
 8. [Gas Pool Economics & Security](#8-gas-pool-economics--security)
 9. [Merchant Economy & Auto-Detection](#9-merchant-economy--auto-detection)
-10. [Security Considerations](#10-security-considerations)
-11. [Implementation Roadmap](#11-implementation-roadmap)
-12. [Technical Requirements](#12-technical-requirements)
+10. [DAO Proposal System](#10-dao-proposal-system) ✅ NEW
+11. [Country Sanctions](#11-country-sanctions) ✅ NEW
+12. [Security Considerations](#12-security-considerations)
+13. [Implementation Roadmap](#13-implementation-roadmap)
+14. [Technical Requirements](#14-technical-requirements)
 
 ---
 
@@ -1466,9 +1470,239 @@ fn calculate_merchant_economics() -> Economics {
 
 ---
 
-## 10. Security Considerations
+## 10. DAO Proposal System (IMPLEMENTED)
 
-### 10.1 Attack Vectors & Mitigations
+### 10.1 Overview
+
+The DAO governance system enables democratic decision-making with strong anti-spam protections. Every verified human has exactly one vote, regardless of token holdings.
+
+### 10.2 Proposal Types
+
+```rust
+pub enum ProposalType {
+    Standard,       // General governance decisions
+    Treasury,       // Spending treasury funds
+    Constitutional, // Protocol parameter changes
+    Sanction,       // Country sanctions
+}
+```
+
+### 10.3 Proposal Parameters
+
+| Type | Bond | Quorum | Approval | Voting Period |
+|------|------|--------|----------|---------------|
+| Standard | 20,000 AGORA | 1,000 votes | >50% | 3 days |
+| Treasury | 50,000 AGORA | 5,000 votes | >50% | 7 days |
+| Constitutional | 75,000 AGORA | 10,000 votes | >67% | 14 days |
+| Sanction | 100,000 AGORA | 25,000 votes | >75% | 14 days |
+
+### 10.4 Bond Mechanism
+
+Bonds prevent spam attacks by requiring significant stake:
+
+```rust
+// Bond amounts in AGORA base units (9 decimals)
+pub const PROPOSAL_BOND_STANDARD: u64 = 20_000_000_000_000;      // 20,000 AGORA
+pub const PROPOSAL_BOND_TREASURY: u64 = 50_000_000_000_000;      // 50,000 AGORA
+pub const PROPOSAL_BOND_CONSTITUTIONAL: u64 = 75_000_000_000_000; // 75,000 AGORA
+pub const PROPOSAL_BOND_SANCTION: u64 = 100_000_000_000_000;     // 100,000 AGORA
+```
+
+**Bond Return Rules:**
+- Proposal reaches 50%+ of quorum → Bond returned (even if rejected)
+- Proposal fails to reach 50% of quorum → Bond forfeited to treasury
+
+### 10.5 Reputation System
+
+Reputation is calculated automatically from voting results (no manual flagging):
+
+```rust
+// Reputation changes based on voting outcome
+pub const REP_PROPOSAL_PASSED: i32 = 2;    // Passed (>50% yes + quorum)
+pub const REP_PROPOSAL_REJECTED: i32 = 1;  // Rejected but reached quorum
+pub const REP_NO_QUORUM_50: i32 = -1;      // 50%+ of quorum reached
+pub const REP_NO_QUORUM_25: i32 = -2;      // 25-50% of quorum
+pub const REP_NO_QUORUM_10: i32 = -3;      // <25% of quorum (obvious spam)
+
+// Ban threshold
+pub const REP_THRESHOLD_BAN: i32 = -10;    // Cannot create proposals
+```
+
+**Bond Multiplier Formula:**
+```rust
+// bond_multiplier = 1 + (abs(reputation) / 2)
+let bond_multiplier: u64 = if proposer_state.proposal_reputation >= 0 {
+    1
+} else {
+    1 + (proposer_state.proposal_reputation.abs() / 2) as u64
+};
+```
+
+| Reputation | Multiplier | Effect |
+|------------|------------|--------|
+| 0+ | 1× | Normal bond |
+| -2 to -3 | 2× | Double bond |
+| -4 to -5 | 3× | Triple bond |
+| -6 to -7 | 4× | Quadruple bond |
+| -8 to -9 | 5× | 5× bond |
+| -10 | ∞ | **Banned** |
+
+### 10.6 Core Structs
+
+```rust
+#[account]
+pub struct Proposal {
+    pub id: u64,
+    pub proposer: Pubkey,
+    pub proposal_type: ProposalType,
+    pub status: ProposalStatus,
+    pub title: [u8; 64],
+    pub description_hash: [u8; 32],  // IPFS hash
+    pub bond_amount: u64,
+    pub bond_resolved: bool,
+    pub votes_yes: u64,
+    pub votes_no: u64,
+    pub votes_abstain: u64,
+    pub total_voters: u64,
+    pub quorum_required: u64,
+    pub approval_threshold: u64,
+    pub created_at: i64,
+    pub voting_ends_at: i64,
+    pub executed_at: i64,
+    pub treasury_amount: u64,        // For treasury proposals
+    pub treasury_recipient: Pubkey,
+    pub sanction_country: [u8; 3],   // ISO 3166-1 alpha-3
+    pub bump: u8,
+}
+
+#[account]
+pub struct VoteRecord {
+    pub voter: Pubkey,
+    pub proposal_id: u64,
+    pub choice: u8,  // 0=no, 1=yes, 2=abstain
+    pub voted_at: i64,
+    pub bump: u8,
+}
+
+#[account]
+pub struct ProposalRegistry {
+    pub next_proposal_id: u64,
+    pub total_proposals: u64,
+    pub active_proposals: u32,
+    pub total_bonds_forfeited: u64,
+    pub total_bonds_returned: u64,
+    pub bump: u8,
+}
+```
+
+### 10.7 Core Functions
+
+```rust
+// Create a new proposal
+pub fn create_proposal(
+    ctx: Context<CreateProposal>,
+    proposal_type: ProposalType,
+    title: [u8; 64],
+    description_hash: [u8; 32],
+    treasury_amount: u64,
+    treasury_recipient: Pubkey,
+    sanction_country: [u8; 3],
+) -> Result<()>
+
+// Vote on active proposal
+pub fn vote_on_proposal(
+    ctx: Context<VoteOnProposal>,
+    choice: u8,  // 0=no, 1=yes, 2=abstain
+) -> Result<()>
+
+// Finalize proposal after voting ends
+pub fn finalize_proposal(
+    ctx: Context<FinalizeProposal>
+) -> Result<()>
+```
+
+### 10.8 Security: Why No Manual Flagging
+
+Manual flagging creates attack vectors:
+- **Coordinated flag attacks** — 100 malicious users can flag any legitimate proposal
+- **Unknowing users** — may click flag thinking it's "like"
+- **Sybil vulnerability** — even with 1-person-1-vote, coordination is possible
+
+**Solution:** Reputation calculated purely from voting results. No user input = no attack vector.
+
+---
+
+## 11. Country Sanctions (IMPLEMENTED)
+
+### 11.1 Philosophy
+
+AGORA includes a mechanism for global democratic accountability: country sanctions for human rights violations.
+
+**Principles:**
+- Punishes governments, not individuals (citizens still receive reduced UBI)
+- Requires global supermajority (75% approval)
+- Temporary with clear expiration
+- Can be lifted early by DAO vote
+- Alternative to military intervention
+
+### 11.2 Sanction Parameters
+
+| Parameter | Value |
+|-----------|-------|
+| Bond Required | 100,000 AGORA |
+| Quorum | 25,000 votes |
+| Approval Threshold | 75% supermajority |
+| Voting Period | 14 days |
+| Default Duration | 1 year |
+
+### 11.3 Implementation
+
+```rust
+#[account]
+pub struct CountrySanction {
+    pub country_code: [u8; 3],      // ISO 3166-1 alpha-3
+    pub reason: [u8; 256],          // Description
+    pub ubi_percentage: u8,         // 1-99 (percentage of normal UBI)
+    pub imposed_at: i64,
+    pub expires_at: i64,
+    pub proposal_id: u64,           // Originating proposal
+    pub is_active: bool,
+    pub lifted_early: bool,
+    pub lifted_at: i64,
+    pub bump: u8,
+}
+```
+
+### 11.4 UBI Reduction (Never Zero)
+
+Sanctions reduce UBI but never eliminate it:
+
+```rust
+// Calculate sanctioned UBI amount
+let sanction_percentage = get_country_sanction_percentage(user.citizenship);
+let daily_amount = if sanction_percentage < 100 {
+    DAILY_UBI_AMOUNT * sanction_percentage as u64 / 100
+} else {
+    DAILY_UBI_AMOUNT  // No sanction
+};
+```
+
+**Example:** If country X is sanctioned at 25% UBI, citizens receive 25 AGORA/day instead of 100.
+
+### 11.5 Safeguards
+
+- **Very high bond** (100,000 AGORA) prevents frivolous sanctions
+- **75% supermajority** ensures broad global consensus
+- **Never zero UBI** — we don't abandon victims of their government
+- **Clear expiration** — sanctions don't last forever
+- **Early lifting** — can be removed if situation improves
+- **Full transparency** — all votes and sanctions on-chain
+
+---
+
+## 12. Security Considerations
+
+### 12.1 Attack Vectors & Mitigations
 
 | Attack Vector | Description | Mitigation |
 |--------------|------------|------------|
@@ -1754,7 +1988,7 @@ A: Flash loans must be repaid in the same transaction. Balance checks still appl
 
 This is the fundamental promise of blockchain: rules enforced by mathematics, not trust.
 
-### 10.5 Upgrade Path
+### 12.5 Upgrade Path
 
 ```rust
 // All upgrades require DAO approval
@@ -1777,7 +2011,7 @@ pub fn upgrade_program(
 
 ---
 
-## 11. Implementation Roadmap
+## 13. Implementation Roadmap
 
 ### Phase 1: Foundation (Months 1-2) âœ…
 - [x] Technical architecture
@@ -1817,7 +2051,7 @@ pub fn upgrade_program(
 
 ---
 
-## 12. Technical Requirements
+## 14. Technical Requirements
 
 ### 10.1 Infrastructure
 
@@ -1994,6 +2228,15 @@ pub fn calculate_initial_claim(age_in_days: u64) -> u64 {
   - Anti-abuse system (ping-pong, circular, dust, rapid fire detection)
   - Emergency brake with auto-trigger
   - 6 new events, 6 new error codes
+- **v1.5.0** (Nov 30, 2025): **DAO Governance IMPLEMENTED** - Full implementation in lib.rs v3.6:
+  - Proposal system with 4 types (Standard, Treasury, Constitutional, Sanction)
+  - Bond mechanism (20K-100K AGORA) preventing spam attacks
+  - Automatic reputation system based on voting results
+  - Bond multiplier formula: 1 + (abs(reputation) / 2)
+  - VoteRecord PDA preventing double voting
+  - Country sanctions system with reduced (never zero) UBI
+  - Annual liveness verification with biometric proof of life
+  - ProposalRegistry for global stats tracking
 
 ---
 

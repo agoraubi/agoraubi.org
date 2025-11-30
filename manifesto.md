@@ -1,7 +1,7 @@
 # AGORA Protocol - Manifesto
 ## Money for Economic Freedom: Breaking the Chains of Centralized Control
 
-**Version 1.3 (with Treasury Mint System)**  
+**Version 1.4 (with DAO Governance System)**  
 **November 2025**
 
 ---
@@ -28,7 +28,8 @@ This is money created directly by people, for people, outside the grasp of those
 6. [Founder Compensation & Fair Launch](#6-founder-compensation--fair-launch)
 7. [Economic Sustainability](#7-economic-sustainability)
    - 7.5 [Gas Pool: Removing the SOL Barrier](#75-gas-pool-removing-the-sol-barrier-implemented) ✅
-   - 7.6 [Treasury Mint: Where Mathematics Meets Economics](#76-treasury-mint-where-mathematics-meets-economics) ✅ NEW
+   - 7.6 [Treasury Mint: Where Mathematics Meets Economics](#76-treasury-mint-where-mathematics-meets-economics) ✅
+   - 7.7 [DAO Governance: Collective Decision Making](#77-dao-governance-collective-decision-making) ✅ NEW
 8. [Inflation Model & Long-Term Stability](#8-inflation-model--long-term-stability)
 9. [Roadmap](#9-roadmap)
 10. [Economics](#10-economics)
@@ -898,6 +899,119 @@ A well-funded treasury enables:
 
 ---
 
+## 7.7 DAO Governance: Collective Decision Making (IMPLEMENTED)
+
+### Philosophy: Governance as Collective Action
+
+AGORA is governed by its users through a **direct democratic system** where every verified human has exactly one vote, regardless of token holdings.
+
+**Core Principles:**
+- **One person = One vote** — wealth cannot buy political power
+- **Proposals require community backing** — high bonds prevent spam
+- **Reputation tracks record** — good proposers pay less, spammers get banned
+- **No manual flagging** — system self-regulates through voting results
+
+### Proposal Types & Requirements
+
+| Type | Bond Required | Quorum | Approval | Voting Period |
+|------|---------------|--------|----------|---------------|
+| **Standard** | 20,000 AGORA | 1,000 votes | >50% | 3 days |
+| **Treasury** | 50,000 AGORA | 5,000 votes | >50% | 7 days |
+| **Constitutional** | 75,000 AGORA | 10,000 votes | >67% | 14 days |
+| **Sanction** | 100,000 AGORA | 25,000 votes | >75% | 14 days |
+
+**Why such high bonds?**
+- Prevents spam attacks that could flood governance
+- Requires collective effort (~20-100 people pooling resources)
+- Serious proposals attract supporters who contribute to bond
+- Bond is returned if proposal reaches 50% of quorum (even if rejected)
+
+### Reputation System: Automatic, No Manual Flagging
+
+Every proposer has a reputation score that affects their bond cost:
+
+**Reputation Changes (automatic based on voting results):**
+| Outcome | Reputation Change | Bond Returned? |
+|---------|-------------------|----------------|
+| Passed (>50% yes + quorum) | **+2** | ✅ Yes |
+| Rejected (quorum reached) | **+1** | ✅ Yes |
+| Expired (50%+ of quorum) | **-1** | ❌ No |
+| Expired (25-50% of quorum) | **-2** | ❌ No |
+| Expired (<25% of quorum) | **-3** | ❌ No |
+
+**Bond Multiplier Formula:**
+```
+bond_multiplier = 1 + (abs(reputation) / 2)
+```
+
+| Reputation | Bond Multiplier |
+|------------|-----------------|
+| 0 or positive | 1× (normal) |
+| -2 to -3 | 2× |
+| -4 to -5 | 3× |
+| -6 to -7 | 4× |
+| -8 to -9 | 5× |
+| -10 | **Banned** |
+
+**Example: Spammer Attack**
+1. Attacker submits spam proposal (20,000 AGORA bond)
+2. No one votes → <25% quorum → -3 reputation, loses 20,000 AGORA
+3. Next attempt costs 40,000 AGORA (2× multiplier)
+4. Another spam → -3 reputation (total -6), loses 40,000 AGORA
+5. Next attempt costs 80,000 AGORA (4× multiplier)
+6. At -10 reputation → permanently banned from proposing
+
+**Result:** Attacking governance is extremely expensive and self-limiting.
+
+### Country Sanctions: Democratic Accountability
+
+AGORA includes a unique mechanism for global democratic accountability: **country sanctions**.
+
+**How It Works:**
+1. Any community can propose a sanction against a country committing atrocities
+2. Requires 100,000 AGORA bond and 75% supermajority approval
+3. If passed, citizens of that country receive reduced UBI (never zero)
+4. Sanctions have expiration dates and can be lifted early by DAO vote
+
+**Philosophy:**
+- **Punishes governments, not individuals** — citizens still receive reduced UBI
+- **Democratic legitimacy** — requires global supermajority, not unilateral action
+- **Temporary and transparent** — clear expiration, early lifting possible
+- **Economic pressure without violence** — alternative to war or military intervention
+
+**Safeguards:**
+- Very high bond (100,000 AGORA) prevents frivolous sanctions
+- 75% supermajority requirement ensures broad consensus
+- Citizens can still claim reduced UBI — we don't abandon victims
+- Full transparency — all sanction votes are on-chain
+
+**This is unprecedented:** A global democratic body that can impose economic consequences on governments for human rights violations, without violence, through pure economic coordination.
+
+### Annual Liveness Verification
+
+To prevent fraud from deceased persons or identity theft, every user must verify they are **alive** once per year:
+
+**Process:**
+1. 60 days before expiry: Warning notification
+2. User initiates liveness challenge
+3. User provides live biometric scan (fingerprint/iris)
+4. Scan must match biometrics stored on eID
+5. If successful: UBI continues for another year
+
+**If Not Verified:**
+- 30-day grace period after expiry
+- UBI claims paused during grace period
+- Accumulated tokens preserved (can be claimed after verification)
+- If never verified: Account flagged as potentially deceased
+
+**Why This Matters:**
+- Prevents dead person fraud (corpse can't do live biometric scan)
+- Prevents identity theft (thief doesn't have matching biometrics)
+- Ensures UBI goes only to living humans
+- Creates natural cleanup of inactive/deceased accounts
+
+---
+
 ## 8. Inflation Model & Long-Term Stability
 
 ### Understanding AGORA Inflation: A Different Paradigm
@@ -1569,9 +1683,9 @@ One million people creating parallel economies changes everything.
 
 ## Document Information
 
-**Version:** 1.3 (Treasury Mint Implemented)  
-**Word Count:** ~9,500 words  
-**Reading Time:** ~40 minutes  
+**Version:** 1.4 (DAO Governance Implemented)  
+**Word Count:** ~10,000 words  
+**Reading Time:** ~42 minutes  
 **Target Audience:** Everyone (especially: local merchants, service providers, farmers, informal economy workers)  
 **Core Message:** AGORA as economic freedom tool through parallel currency, not welfare or speculation  
 **Key Themes:**
@@ -1583,7 +1697,9 @@ One million people creating parallel economies changes everything.
 - Personalized economic incentives
 - Universal access through proof of personhood
 - Gas-free transactions via community-funded pool ✅
-- **Mathematical treasury funding via 1/(π×e) rate** ✅ NEW
+- Mathematical treasury funding via 1/(π×e) rate ✅
+- **Democratic governance with anti-spam bonds** ✅ NEW
+- **Country sanctions for human rights accountability** ✅ NEW
 
 **Implementation Status:**
 - ✅ Core token distribution
@@ -1591,10 +1707,12 @@ One million people creating parallel economies changes everything.
 - ✅ Merchant auto-detection
 - ✅ Activity-based fees
 - ✅ Gas Pool system (v3.4)
-- ✅ **Treasury Mint system (v3.5)**
+- ✅ Treasury Mint system (v3.5)
+- ✅ **DAO Governance system (v3.6)** — proposals, voting, bonds, reputation
+- ✅ **Country sanctions system** — democratic response to atrocities
+- ✅ **Annual liveness verification** — biometric proof of life
 - ⏳ Civic Pass integration
-- ⏳ DAO Governance
 
-**Status:** Active development, Treasury Mint complete
+**Status:** Active development, DAO Governance complete
 
 ---
