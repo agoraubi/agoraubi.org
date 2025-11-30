@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proposals - AGORA DAO</title>
-    <meta name="description" content="Submit and review governance proposals for the AGORA Protocol. Anyone can propose changes to the protocol.">
+    <meta name="description" content="Submit and review governance proposals for the AGORA Protocol. Proposals require community bond pooling.">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="alternate icon" href="favicon.svg">
     
@@ -402,7 +402,64 @@
 
         <div class="header">
             <h1><span class="accent">Proposals</span></h1>
-            <p>Submit and review governance proposals. Anyone can propose changes to the protocol.</p>
+            <p>Governance through collective action. Pool resources with others to submit proposals.</p>
+        </div>
+
+        <!-- Bond Info Box -->
+        <div style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+            <h3 style="font-family: var(--font-display); margin-bottom: 1rem; color: var(--warning);">💰 Proposal Bonds (Anti-Spam)</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem;">
+                Proposals require a refundable bond to prevent spam attacks. Bond is returned if proposal reaches 50% of quorum.
+            </p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 8px;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Standard</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--accent);" id="bond-standard">-</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);" id="bond-standard-people">-</div>
+                </div>
+                <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 8px;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Treasury</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--accent);" id="bond-treasury">-</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);" id="bond-treasury-people">-</div>
+                </div>
+                <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 8px;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Constitutional</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--accent);" id="bond-constitutional">-</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);" id="bond-constitutional-people">-</div>
+                </div>
+                <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 8px;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Sanction</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--accent);" id="bond-sanction">-</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);" id="bond-sanction-people">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reputation Info Box -->
+        <div style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+            <h3 style="font-family: var(--font-display); margin-bottom: 1rem; color: var(--accent);">⭐ Proposer Reputation</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem;">
+                Your proposal history affects future costs. Reputation is calculated automatically from voting results.
+            </p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">REPUTATION GAINS</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">• Proposal passed: <span style="color: var(--accent);" id="rep-passed">-</span></div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">• Rejected but reached quorum: <span style="color: var(--accent);" id="rep-rejected">-</span></div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">REPUTATION LOSSES (NO QUORUM)</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">• 50%+ of quorum: <span style="color: var(--warning);" id="rep-noquorum50">-</span></div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">• 25-50% of quorum: <span style="color: var(--danger);" id="rep-noquorum25">-</span></div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">• &lt;25% of quorum: <span style="color: var(--danger);" id="rep-noquorum10">-</span></div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">BOND MULTIPLIER</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">Formula: <span style="color: var(--accent);">1 + (|rep| ÷ 2)</span></div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">• Rep -4: <span style="color: var(--warning);">3× bond</span></div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">• Rep <span id="rep-ban-threshold">-</span>: <span style="color: var(--danger);">Banned</span></div>
+                </div>
+            </div>
         </div>
 
         <div class="stats-bar">
@@ -444,7 +501,7 @@
             <a href="index.html">Home</a>
             <a href="dao.html">DAO</a>
             <a href="https://github.com/agoraubi/agoraubi.org" target="_blank">GitHub</a>
-            <a href="manifesto.md" target="_blank">Manifesto</a>
+            <a href="https://github.com/agoraubi/agoraubi.org/blob/main/manifesto.md" target="_blank">Manifesto</a>
         </div>
         <p class="footer-copy">AGORA Protocol — Money for humans, governed by humans</p>
     </footer>
@@ -452,6 +509,28 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const proposals = AGORA_DATA.proposals.items;
+            const bonds = AGORA_DATA.proposalBonds;
+            const rep = AGORA_DATA.reputation;
+            
+            // Populate bond values from data.js
+            document.getElementById('bond-standard').textContent = AGORA_DATA.formatWithCommas(bonds.standard) + ' AGORA';
+            document.getElementById('bond-treasury').textContent = AGORA_DATA.formatWithCommas(bonds.treasury) + ' AGORA';
+            document.getElementById('bond-constitutional').textContent = AGORA_DATA.formatWithCommas(bonds.constitutional) + ' AGORA';
+            document.getElementById('bond-sanction').textContent = AGORA_DATA.formatWithCommas(bonds.sanction) + ' AGORA';
+            
+            // Populate people pooling estimates (bond / 1000 AGORA per person ~10 days UBI)
+            document.getElementById('bond-standard-people').textContent = '~' + Math.round(bonds.standard / 1000) + ' people pooling';
+            document.getElementById('bond-treasury-people').textContent = '~' + Math.round(bonds.treasury / 1000) + ' people pooling';
+            document.getElementById('bond-constitutional-people').textContent = '~' + Math.round(bonds.constitutional / 1000) + ' people pooling';
+            document.getElementById('bond-sanction-people').textContent = '~' + Math.round(bonds.sanction / 1000) + ' people pooling';
+            
+            // Populate reputation values from data.js
+            document.getElementById('rep-passed').textContent = '+' + rep.proposalPassed;
+            document.getElementById('rep-rejected').textContent = '+' + rep.proposalRejected;
+            document.getElementById('rep-noquorum50').textContent = rep.noQuorum50;
+            document.getElementById('rep-noquorum25').textContent = rep.noQuorum25;
+            document.getElementById('rep-noquorum10').textContent = rep.noQuorum10;
+            document.getElementById('rep-ban-threshold').textContent = rep.thresholdBan;
             
             // Stats
             document.getElementById('stat-active').textContent = proposals.filter(p => p.status === 'voting').length;
