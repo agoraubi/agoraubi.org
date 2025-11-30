@@ -704,7 +704,7 @@ Burned: 0.0625 AGORA
 
 ### The Problem
 
-Every Solana transaction requires SOL for gas fees (~0.00025 SOL). For users in developing nations, even $0.01 can be a barrier. Without a solution, AGORA cannot achieve universal access.
+Every Solana transaction requires SOL for gas fees (~0.00025 SOL). For users in developing nations, even 0.0001 SOL can be a barrier. Without a solution, AGORA cannot achieve universal access.
 
 ### The Solution: Community-Funded Gas Pool
 
@@ -762,8 +762,8 @@ If daily drain exceeds 500 SOL, the pool auto-pauses and alerts the DAO. No huma
 ### The Problem
 
 The protocol needs sustainable funding for:
-- RPC infrastructure (~$6,000/year)
-- Security audits ($50,000-$100,000)
+- RPC infrastructure (~25 SOL/year)
+- Security audits (200-400 SOL)
 - Bug bounty programs
 - Development grants
 - Emergency reserves
@@ -1264,7 +1264,7 @@ AGORA answers: By making inflation work for people, not against them.
 - [ ] Remediation of findings
 
 **Bug Bounty:**
-- [ ] Launch bug bounty program ($1k-$50k rewards)
+- [ ] Launch bug bounty program (5-200 SOL rewards)
 - [ ] Public disclosure policy
 
 ### Phase 3: Testnet Launch (Month 5-6)
@@ -1478,7 +1478,7 @@ A: Then AGORA fails. But if we build real circular economies where you can buy d
 ### Technical
 
 **Q: Why Solana?**  
-A: High throughput (65k+ TPS), low fees ($0.00025), fast finality (1-2 sec). Perfect for daily microtransactions.
+A: High throughput (65k+ TPS), low fees (~0.00025 SOL), fast finality (1-2 sec). Perfect for daily microtransactions.
 
 **Q: Can AGORA be hacked?**  
 A: Smart contracts will be audited. Solana itself has never been hacked (though it's had outages). No system is 100% secure, but we take security seriously.

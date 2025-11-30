@@ -2058,7 +2058,7 @@ pub fn upgrade_program(
 **RPC Nodes:**
 - Primary: GenesysGo or Helius
 - Backup: Public Solana RPC
-- Estimated cost: ~$500/month
+- Estimated cost: ~2 SOL/month
 
 **Frontend Hosting:**
 - GitHub Pages (free)
@@ -2113,7 +2113,7 @@ pub fn upgrade_program(
 **At 1M Users:**
 - Total storage: ~2,030 SOL
 - Daily transactions: ~1,000 SOL/year
-- RPC costs: ~$6,000/year
+- RPC costs: ~25 SOL/year
 
 ---
 
