@@ -94,12 +94,12 @@ smart-contracts/
     ├── agora-core/                 # IMMUTABLE PROGRAM
     │   ├── Cargo.toml
     │   └── src/
-    │       └── lib.rs              # 1,531 lines
+    │       └── lib.rs              # 1,825 lines
     │
     └── agora-governance/           # UPGRADEABLE PROGRAM
         ├── Cargo.toml
         └── src/
-            └── lib.rs              # 1,685 lines
+            └── lib.rs              # 2,214 lines              # 1,685 lines
 ```
 
 ---
@@ -751,79 +751,177 @@ where:
 
 ## 6. Identity & Biometrics
 
-### 6.1 Registration Flow
+### 6.1 Solana Attestation Service (SAS) Integration
+
+AGORA uses **Solana Attestation Service (SAS)** for identity verification, with **Civic** as the initial trusted issuer. Additional issuers can be added via DAO Constitutional proposals.
 
 ```
-User with eID
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           IDENTITY VERIFICATION FLOW                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   User                  Civic                   SAS                 AGORA   │
+│    │                      │                      │                    │     │
+│    │ 1. Request Pass      │                      │                    │     │
+│    │─────────────────────►│                      │                    │     │
+│    │                      │                      │                    │     │
+│    │ 2. Video selfie +    │                      │                    │     │
+│    │    ID document       │                      │                    │     │
+│    │─────────────────────►│                      │                    │     │
+│    │                      │                      │                    │     │
+│    │                      │ 3. Issue attestation │                    │     │
+│    │                      │─────────────────────►│                    │     │
+│    │                      │                      │                    │     │
+│    │ 4. Register with attestation                │                    │     │
+│    │─────────────────────────────────────────────────────────────────►│     │
+│    │                      │                      │                    │     │
+│    │                      │                      │    5. Verify:      │     │
+│    │                      │                      │    - Trusted issuer│     │
+│    │                      │                      │    - Not expired   │     │
+│    │                      │                      │    - Not revoked   │     │
+│    │                      │                      │    - Correct wallet│     │
+│    │                      │                      │                    │     │
+│    │ 6. Account created, UBI starts                                   │     │
+│    │◄─────────────────────────────────────────────────────────────────│     │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+**SAS Program ID:** `22zoJMtdu4tQc2PzL74ZUT7FrwgB1Udec8DdW4yw4BdG`
+
+### 6.2 Trusted Issuer Management
+
+Trusted issuers are managed by DAO through Governance program:
+
+```rust
+// Governance account structures
+pub struct TrustedIssuer {
+    pub credential: Pubkey,          // SAS credential PDA
+    pub name: [u8; 32],              // "Civic", "RNS.ID", etc.
+    pub approved_at: i64,
+    pub proposal_id: u64,
+    pub is_active: bool,
+    pub deactivated_at: i64,
+    pub total_attestations: u64,
+    pub bump: u8,
+}
+
+pub struct TrustedIssuerRegistry {
+    pub total_issuers: u64,
+    pub active_issuers: u64,
+    pub created_at: i64,
+    pub last_updated: i64,
+    pub bump: u8,
+}
+```
+
+**Functions (🔴 CONSTITUTIONAL - 75% approval, 10% quorum, 100K bond):**
+- `add_trusted_issuer()` - Add new identity provider
+- `remove_trusted_issuer()` - Deactivate compromised/defunct issuer
+
+**Initial Setup:**
+- `initialize_issuer_registry()` - Creates registry + adds Civic as first issuer
+
+### 6.3 Attestation Update Flow
+
+When verification technology changes, users can update their attestation **without losing their account or history**.
+
+```
+User with expiring/outdated attestation
      │
      ▼
-┌─────────────────┐
-│ 1. eID Reader   │ ──► Extracts fingerprint/iris
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│ 2. SHA-256 Hash │ ──► Deterministic: same biometric = same hash
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│ 3. Check Unique │ ──► BiometricRecord PDA exists? REJECT
-└────────┬────────┘
-         │ (unique)
-         ▼
-┌─────────────────┐
-│ 4. Register     │ ──► Create UserState + BiometricRecord
-└────────┬────────┘
-         │
-         ▼
-    User Verified
+┌─────────────────────────┐
+│ 1. Get new attestation  │ ──► Complete new verification
+│    from trusted issuer  │     (Civic, RNS.ID, etc.)
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ 2. Call update_         │ ──► Wallet must sign (ownership proof)
+│    attestation()        │
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ 3. AGORA Core verifies: │
+│    • Trusted issuer     │ ──► Reads TrustedIssuer from Governance
+│    • Issuer is active   │ ──► is_active == true
+│    • Same wallet        │ ──► Attestation nonce = user wallet
+│    • Not expired        │ ──► expiry > now OR expiry == 0
+│    • Not revoked        │ ──► is_revoked == false
+└──────────┬──────────────┘
+           │ (all valid)
+           ▼
+┌─────────────────────────┐
+│ 4. Update user state    │ ──► New attestation reference
+│                         │     Update timestamp
+│                         │     Increment update count
+└──────────┬──────────────┘
+           │
+           ▼
+    Attestation Updated
+    (account preserved)
 ```
 
-### 6.2 Biometric Update Flow
+### 6.4 UserState Structure (with SAS fields)
 
-```
-User wants to update (e.g., fingerprint → DNA)
-     │
-     ▼
-┌─────────────────────┐
-│ 1. Prove OLD        │ ──► Live scan of OLD biometric
-│    biometric        │     Must match stored hash
-└─────────┬───────────┘
-          │ (match)
-          ▼
-┌─────────────────────┐
-│ 2. Provide NEW      │ ──► New hash from updated eID
-│    biometric        │     Must NOT exist already
-└─────────┬───────────┘
-          │ (unique)
-          ▼
-┌─────────────────────┐
-│ 3. Update records   │ ──► Old record invalidated
-│                     │     New record created
-└─────────┬───────────┘
-          │
-          ▼
-    Biometric Updated
+```rust
+pub struct UserState {
+    pub owner: Pubkey,                    // Wallet address
+    pub registration_timestamp: i64,       // When registered
+    pub last_claim_timestamp: i64,         // Last UBI claim
+    pub age_in_days_at_registration: u64,  // Age at signup
+    pub citizenship: [u8; 3],              // ISO country code
+    pub is_verified: bool,                 // Verification status
+    pub is_child: bool,                    // Under 18
+    pub total_claimed: u128,               // Total UBI ever claimed
+    pub locked_balance: u64,               // Locked for children
+    pub transaction_count: u64,            // Activity tracking
+    pub last_transaction_timestamp: i64,   // Rate limiting
+    pub liveness_verified_at: i64,         // Liveness check
+    pub liveness_expires_at: i64,          // Liveness expiry
+    
+    // SAS Attestation fields (⚫ IMMUTABLE)
+    pub attestation: Pubkey,               // Current SAS attestation PDA
+    pub attestation_updated_at: i64,       // Last attestation update
+    pub attestation_update_count: u8,      // Number of updates
+    
+    pub bump: u8,                          // PDA bump
+}
 ```
 
-### 6.3 Security Analysis
+### 6.5 Security Analysis
 
 **Attack: Create multiple accounts**
-- Blocked by: Biometric hash uniqueness check
-- Same fingerprint = same hash = rejected
+- Blocked by: Civic uniqueness verification (1 person = 1 wallet)
+- Video selfie + 3D face map prevents duplicates
 
-**Attack: Use someone else's eID**
-- Blocked by: Live scan must match stored hash
-- Thief's fingerprint ≠ victim's fingerprint
+**Attack: Use someone else's identity**
+- Blocked by: Live video selfie must match ID document
+- Civic's biometric matching rejects mismatches
 
-**Attack: Steal account via biometric update**
-- Blocked by: Must prove BOTH old AND new biometric
-- Would need physical access to both biometrics
+**Attack: Steal account via attestation update**
+- Blocked by: Wallet signature required
+- New attestation must be linked to same wallet
+- Only account owner can call update_attestation()
 
-**Attack: Dead person fraud**
-- Blocked by: Annual liveness verification
-- Dead person cannot provide live scan
+**Attack: Use expired attestation**
+- Blocked by: Expiry timestamp check
+- If expiry > 0 and expiry < now, attestation rejected
+
+**Attack: Use revoked attestation**
+- Blocked by: Revocation status check
+- If is_revoked == true, attestation rejected
+
+**Attack: Use untrusted issuer**
+- Blocked by: TrustedIssuer account verification
+- Core reads from Governance to verify issuer is active
+
+**Attack: Issuer compromise**
+- Mitigated by: DAO can remove compromised issuer
+- Constitutional proposal (75% supermajority) required
+- Existing attestations remain valid until expiry
+- Users should update to attestations from active issuers
 
 ---
 

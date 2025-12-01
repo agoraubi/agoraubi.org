@@ -172,18 +172,25 @@ Every verified human receives **100 AGORA tokens per day**.
 
 **Step 1: Verify Your Humanity**
 
-AGORA uses biometric verification to ensure one human = one account:
+AGORA uses **Solana Attestation Service (SAS)** with **Civic** as the trusted identity provider:
 
 1. **Connect your Solana wallet** (Phantom, Solflare, Backpack)
-2. **Verify your identity** via eIDAS-compliant provider
-3. **Provide biometric hash** (fingerprint/iris from government eID)
-4. **Receive your account** - you're now part of AGORA
+2. **Get a Civic Pass** - video selfie + ID document verification
+3. **Receive SAS attestation** - on-chain proof of your identity
+4. **Register with AGORA** - your attestation is verified, account created
 
 **Privacy Guarantees:**
-- Only a cryptographic hash is stored on-chain
-- Cannot reverse hash to actual biometric
-- One person = one account (cryptographically enforced)
-- Biometric can be updated when technology changes
+- Personal data stays off-chain (with Civic)
+- Only attestation reference stored on-chain
+- Cannot reverse attestation to personal data
+- One person = one account (Civic enforces uniqueness)
+- Attestation can be updated when technology changes
+
+**Multi-Issuer Support:**
+- Civic is the initial trusted issuer
+- DAO can add more issuers (RNS.ID, Sumsub, etc.)
+- Constitutional proposal required (75% supermajority)
+- Protects against single issuer dependency
 
 **Step 2: Receive Your Initial Claim (Retroactive UBI)**
 - **Everyone:** Maximum 1 year back-payment (36,500 AGORA)
@@ -620,12 +627,14 @@ When transaction volume is low, mint exceeds burn = inflation.
 - Governance program upgrades
 - Merchant thresholds
 - Gas pool parameters
+- **Trusted identity issuers** (add/remove Civic, RNS.ID, etc.)
 
 **What DAO cannot touch:**
 - 100 AGORA/day (immutable in Core)
-- Biometric verification logic
+- Attestation verification logic (reads from Governance)
 - Core minting functions
 - User registration process
+- `update_attestation` function
 
 ### Proposal Types
 
@@ -724,13 +733,19 @@ A: No. Minimum is always 1%. Even the worst actor receives 1 AGORA/day. No one i
 **Q: What prevents abuse of sanctions?**
 A: 67% supermajority, 5% of users quorum, 75,000 AGORA bond, 14-day voting period. Sanctions are rare and serious.
 
-### Biometrics
+### Identity & Attestations
 
-**Q: What if biometric technology changes?**
-A: The `update_biometric` function allows migration. Prove ownership of old biometric, provide new hash, system updates your record. Part of immutable Core.
+**Q: What if verification technology changes?**
+A: The `update_attestation` function allows migration. Get a new attestation from any trusted issuer, call update, and your account is preserved with all history intact. Part of immutable Core.
 
 **Q: Can someone steal my account?**
-A: They would need physical access to BOTH your old AND new biometric. Practically impossible without physically kidnapping you.
+A: They would need to control your wallet AND get an attestation linked to your wallet. The attestation must pass Civic's biometric verification, which requires your face. Practically impossible.
+
+**Q: What if Civic goes out of business?**
+A: DAO can add new trusted issuers via Constitutional proposal (75% supermajority). RNS.ID, Sumsub, and others can be added. Users can then get attestations from any active issuer.
+
+**Q: What if an issuer is compromised?**
+A: DAO can remove the issuer via Constitutional proposal. Existing attestations remain valid until they expire. Users should update to attestations from active issuers.
 
 ### Economics
 
@@ -803,19 +818,25 @@ Can we create economic freedom through technology?
 
 ## Document Information
 
-**Version:** 2.0 (Dual-Program Architecture)
+**Version:** 2.1 (SAS Integration)
 **Status:** Development
+
+**Key Changes in v2.1:**
+- ⚡ Solana Attestation Service (SAS) integration
+- ⚡ Civic as initial trusted identity issuer
+- ⚡ Multi-issuer support via DAO governance
+- ⚡ `update_attestation` function for technology migration
+- ⚡ TrustedIssuer management in Governance
 
 **Key Changes in v2.0:**
 - ⚡ Dual-program architecture (Core immutable, Governance upgradeable)
 - ⚡ Sacred 100 AGORA/day promise explained
 - ⚡ Sanction system with limits
-- ⚡ Biometric update function
 - ⚡ Clear separation of powers
 
 **Smart Contract Status:**
-- ✅ AGORA Core (1,531 lines) - immutable program
-- ✅ AGORA Governance (1,685 lines) - upgradeable program
+- ✅ AGORA Core (1,825 lines) - immutable program
+- ✅ AGORA Governance (2,214 lines) - upgradeable program
 - ⏳ Audit pending
 - ⏳ Mainnet deployment pending
 
