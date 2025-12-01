@@ -10,7 +10,7 @@
 //! # ║    ╚═════╝ ╚═╝      ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚══════╝   ║
 //! # ║                                                                                                ║
 //! # ║   This program is UPGRADEABLE by DAO vote.                                                     ║
-//! # ║   Constitutional proposals (67% supermajority) can modify this code.                           ║
+//! # ║   Constitutional proposals (75% supermajority) can modify this code.                           ║
 //! # ║                                                                                                ║
 //! # ╚════════════════════════════════════════════════════════════════════════════════════════════════╝
 //!
